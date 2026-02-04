@@ -1,42 +1,48 @@
-Tienda Catys - Sistema de Gestión
-Este es un proyecto de escritorio desarrollado en Java utilizando el patrón de diseño DAO (Data Access Object) y conectado a una base de datos SQL Server. El sistema permite gestionar ventas, productos, clientes y usuarios para un entorno comercial.
+# Tienda Catys - Sistema de Gestión de Ventas
 
-Características
-Gestión de Ventas: Registro y procesamiento de transacciones.
+Este es un sistema de escritorio desarrollado en **Java (Swing)** y **SQL Server**, diseñado para gestionar clientes y usuarios de manera eficiente y segura. El proyecto aplica patrones de diseño y estándares de seguridad de la industria.
 
-Inventario: Control detallado de productos (ProductoDAO).
+## Características Principales
 
-Clientes y Usuarios: Módulos independientes para el registro y administración de perfiles.
+* **Autenticación Segura:** Implementación de **BCrypt** para el hashing de contraseñas, evitando el almacenamiento en texto plano.
+* **Gestión de Clientes (CRUD):** Listado, registro y eliminación de clientes con actualización en tiempo real.
+* **Buscador Dinámico:** Filtro de búsqueda en tiempo real mediante `TableRowSorter`.
+* **Validaciones Robustas:** Uso de **Expresiones Regulares (Regex)** para asegurar la integridad de datos (DNI, Teléfono, Nombres).
+* **Arquitectura Profesional:** Uso del patrón **DAO (Data Access Object)** y **Singleton** para la gestión de la conexión a la base de datos.
 
-Generación de Documentos: Exportación de reportes en PDF.
+## Tecnologías Utilizadas
 
-Interfaz Gráfica (GUI): Diseñada con Java Swing para una experiencia de usuario intuitiva.
+* **Lenguaje:** Java 17+
+* **Base de Datos:** SQL Server
+* **Librerías:** * `jBCrypt` (Seguridad)
+    * `JDBC` (Conectividad SQL)
+* **IDE:** Visual Studio Code / NetBeans
 
-Tecnologías Utilizadas
-Lenguaje: Java (JDK 17+).
+## Capturas de Pantalla
 
-IDE: Visual Studio Code.
+### Login Seguro (BCrypt)
+![Login](screenshots/login.png)
+*El sistema valida credenciales comparando hashes seguros.*
 
-Base de Datos: Microsoft SQL Server.
+### Mantenimiento de Clientes
+![Lista Clientes](screenshots/clientes.png)
+*Interfaz moderna con scroll funcional y buscador en tiempo real.*
 
-Librerías: * JDBC para la conexión a la base de datos.
+### Registro con Validaciones
+![Registro](screenshots/clientes2.png)
+*Control de calidad de datos mediante Regex.*
 
-Librerías para generación de PDF (iText/JasperReports).
+## Configuración del Proyecto
 
-Estructura del Proyecto
-El proyecto sigue una arquitectura organizada por capas para facilitar el mantenimiento:
+1. **Base de Datos:**
+   - Ejecuta el script SQL incluido para crear la base de datos `CatysDB`.
+   - Asegúrate de que la columna `password` de la tabla `Usuarios` sea `VARCHAR(100)`.
 
-src/vista: Contiene los frames y paneles de la interfaz (Swing).
+2. **Conexión:**
+   - Ajusta las credenciales en la clase `ConexionSQL.java`.
 
-src/dao: Lógica de acceso a datos y consultas SQL.
+3. **Librerías:**
+   - Asegúrate de incluir el `.jar` de `jBCrypt` en el classpath.
 
-src/modelo: Clases de entidad (POJOs) como Cliente, Producto y Usuario.
-
-src/util: Clases de utilidad como la conexión a la base de datos y generadores de archivos.
-
-Configuración
-Base de Datos: Ejecuta el script SQL (ubicado en la carpeta /sql si lo incluyes) en tu instancia de SQL Server.
-
-Conexión: Ajusta las credenciales en src/util/ConexionSQL.java.
-
-Librerías: Asegúrate de incluir los archivos .jar de la carpeta lib/ en el classpath de tu proyecto.
+---
+Desarrollado por Juan Parra - Estudiante de Ingeniería de Sistemas @ UTP
