@@ -2,9 +2,9 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import util.ConexionSQL;
 import modelo.Carrito;
 import modelo.Producto;
+import util.ConexionSQL;
 
 public class VentaDAO {
 

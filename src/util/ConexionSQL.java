@@ -1,38 +1,54 @@
 package util;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConexionSQL {
+    // 1. La instancia única (estática)
+    private static Connection connection = null;
 
-    private static final String CONNECTION_URL =
-            "jdbc:sqlserver://localhost:1433;" +
-            "databaseName=CatysDB;" +
-            "encrypt=true;" +
-            "trustServerCertificate=true;" +
-            "sendStringParametersAsUnicode=true;";
+    // 2. Constructor privado (evita que alguien haga 'new ConexionSQL()')
+    private ConexionSQL() {}
 
+    // 3. Método para obtener la conexión única
     public static Connection getConexion() {
-        Properties props = new Properties();
         try {
-            // Cargamos el archivo de configuración
-            props.load(new FileInputStream("config.properties"));
-            String user = props.getProperty("db.user");
-            String pass = props.getProperty("db.pass");
+            // Solo creamos la conexión si no existe o si se cerró
+            if (connection == null || connection.isClosed()) {
+                Properties props = new Properties();
+                // Cargamos tus credenciales desde el archivo que ya configuramos
+                props.load(new FileInputStream("config.properties"));
 
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            return DriverManager.getConnection(CONNECTION_URL, user, pass);
+                String url = "jdbc:sqlserver://localhost:1433;" +
+                             "databaseName=CatysDB;" +
+                             "encrypt=true;" +
+                             "trustServerCertificate=true;";
 
-        } catch (IOException e) {
-            System.out.println("Error: No se encontró el archivo config.properties");
-            return null;
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Error de Conexión: " + e.getMessage());
-            return null;
+                String user = props.getProperty("db.user");
+                String pass = props.getProperty("db.pass");
+
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                connection = DriverManager.getConnection(url, user, pass);
+                System.out.println("✅ Conexión establecida exitosamente.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error de conexión: " + e.getMessage());
+        }
+        return connection;
+    }
+
+    // 4. Método para cerrar la conexión (opcional, para limpieza)
+    public static void cerrarConexion() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+                System.out.println("🔌 Conexión cerrada.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
