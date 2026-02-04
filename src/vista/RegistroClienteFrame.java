@@ -2,103 +2,102 @@ package vista;
 
 import dao.ClienteDAO;
 import java.awt.*;
-import java.util.List;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import modelo.Cliente;
 
 public class RegistroClienteFrame extends JFrame {
 
-    // Componentes de la interfaz
     private JTextField txtDni, txtNombre, txtTelefono;
-    private JTable tablaClientes;
-    private DefaultTableModel modeloTabla;
+    private JButton btnGuardar, btnCancelar;
     private ClienteDAO clienteDAO;
 
     public RegistroClienteFrame() {
-        clienteDAO = new ClienteDAO(); // Inicializamos el DAO
+        clienteDAO = new ClienteDAO();
         initComponents();
-        actualizarTablaClientes(); // Cargamos los datos al iniciar
     }
 
     private void initComponents() {
-        setTitle("Gestión de Clientes - Tienda Catys");
-        setSize(800, 500);
+        setTitle("Registrar Nuevo Cliente");
+        setSize(400, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
+        setLocationRelativeTo(null);
+        setLayout(new GridLayout(4, 2, 10, 10));
+        ((JPanel)getContentPane()).setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // --- PANEL DE FORMULARIO (IZQUIERDA) ---
-        JPanel panelForm = new JPanel(new GridLayout(4, 2, 5, 5));
-        panelForm.setBorder(BorderFactory.createTitledBorder("Datos del Cliente"));
-
-        panelForm.add(new JLabel("DNI:"));
+        // Componentes
+        add(new JLabel("DNI (8 dígitos):"));
         txtDni = new JTextField();
-        panelForm.add(txtDni);
+        add(txtDni);
 
-        panelForm.add(new JLabel("Nombre:"));
+        add(new JLabel("Nombre Completo:"));
         txtNombre = new JTextField();
-        panelForm.add(txtNombre);
+        add(txtNombre);
 
-        panelForm.add(new JLabel("Teléfono:"));
+        add(new JLabel("Teléfono (9 dígitos):"));
         txtTelefono = new JTextField();
-        panelForm.add(txtTelefono);
+        add(txtTelefono);
 
-        JButton btnGuardar = new JButton("Guardar Cliente");
+        btnGuardar = new JButton("Guardar");
+        btnGuardar.setBackground(new Color(46, 204, 113));
+        btnGuardar.setForeground(Color.WHITE);
+
+        btnCancelar = new JButton("Cancelar");
+
+        add(btnGuardar);
+        add(btnCancelar);
+
+        // EVENTO GUARDAR CON VALIDACIÓN REGEX
         btnGuardar.addActionListener(e -> accionGuardar());
-        panelForm.add(btnGuardar);
 
-        add(panelForm, BorderLayout.WEST);
-
-        // --- PANEL DE TABLA (CENTRO) ---
-        String[] columnas = {"ID", "DNI", "Nombre Completo", "Teléfono"};
-        modeloTabla = new DefaultTableModel(columnas, 0);
-        tablaClientes = new JTable(modeloTabla);
-        add(new JScrollPane(tablaClientes), BorderLayout.CENTER);
-    }
-
-    // MÉTODO CLAVE: Actualiza la tabla usando List<Cliente>
-    private void actualizarTablaClientes() {
-        List<Cliente> lista = clienteDAO.obtenerTodos(); // Obtenemos datos puros
-        modeloTabla.setRowCount(0); // Limpiamos la tabla visual
-
-        for (Cliente c : lista) {
-            Object[] fila = {
-                c.getId(),
-                c.getDni(),
-                c.getNombre(),
-                c.getTelefono()
-            };
-            modeloTabla.addRow(fila);
-        }
+        btnCancelar.addActionListener(e -> dispose());
     }
 
     private void accionGuardar() {
-        // 1. Validaciones básicas
-        if (txtDni.getText().isEmpty() || txtNombre.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "DNI y Nombre son obligatorios");
-            return;
-        }
+        String dni = txtDni.getText().trim();
+        String nombre = txtNombre.getText().trim();
+        String telefono = txtTelefono.getText().trim();
 
-        // 2. Creamos el objeto modelo
-        Cliente nuevoCliente = new Cliente();
-        nuevoCliente.setDni(txtDni.getText());
-        nuevoCliente.setNombre(txtNombre.getText());
-        nuevoCliente.setTelefono(txtTelefono.getText());
+        // LLAMADA A LAS VALIDACIONES (Punto 4)
+        if (validarCampos(dni, nombre, telefono)) {
+            Cliente nuevoCliente = new Cliente();
+            nuevoCliente.setDni(dni);
+            nuevoCliente.setNombre(nombre);
+            nuevoCliente.setTelefono(telefono);
 
-        // 3. Llamamos al DAO
-        if (clienteDAO.registrarCliente(nuevoCliente)) {
-            JOptionPane.showMessageDialog(this, "¡Cliente registrado con éxito!");
-            limpiarCampos();
-            actualizarTablaClientes(); // Refrescamos la tabla automáticamente
-        } else {
-            JOptionPane.showMessageDialog(this, "Error al registrar. Verifique si el DNI ya existe.");
+            if (clienteDAO.registrarCliente(nuevoCliente)) {
+                JOptionPane.showMessageDialog(this, "Cliente registrado correctamente.");
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al guardar en la base de datos.");
+            }
         }
     }
 
-    private void limpiarCampos() {
-        txtDni.setText("");
-        txtNombre.setText("");
-        txtTelefono.setText("");
-        txtDni.requestFocus();
+    /**
+     * Implementación de Expresiones Regulares (Regex) para validación de datos.
+     */
+    private boolean validarCampos(String dni, String nombre, String telefono) {
+        // 1. Validar DNI: Solo 8 dígitos numéricos
+        if (!dni.matches("\\d{8}")) {
+            JOptionPane.showMessageDialog(this, "Error: El DNI debe tener exactamente 8 números.");
+            txtDni.requestFocus();
+            return false;
+        }
+
+        // 2. Validar Nombre: Letras, tildes y espacios (3 a 100 caracteres)
+        if (!nombre.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{3,100}$")) {
+            JOptionPane.showMessageDialog(this, "Error: El nombre solo puede contener letras y debe ser real.");
+            txtNombre.requestFocus();
+            return false;
+        }
+
+        // 3. Validar Teléfono: Empieza con 9 y tiene 9 dígitos
+        if (!telefono.matches("9\\d{8}")) {
+            JOptionPane.showMessageDialog(this, "Error: El teléfono debe empezar con 9 y tener 9 dígitos.");
+            txtTelefono.requestFocus();
+            return false;
+        }
+
+        return true;
     }
 }
