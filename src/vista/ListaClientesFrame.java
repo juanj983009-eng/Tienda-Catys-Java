@@ -2,121 +2,134 @@ package vista;
 
 import dao.ClienteDAO;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
+import java.util.List;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import modelo.Cliente;
 
 public class ListaClientesFrame extends JFrame {
 
-    // Colores Corporativos
-    private static final Color COLOR_FONDO = new Color(245, 247, 250);
-    private static final Color COLOR_HEADER = new Color(33, 43, 54); 
-    private static final Color COLOR_NARANJA = new Color(255, 99, 71);
-    private static final Color COLOR_VERDE = new Color(72, 187, 120);
+    private JTable tablaClientes;
+    private DefaultTableModel modeloTabla;
+    private ClienteDAO clienteDAO;
 
     public ListaClientesFrame() {
-        setTitle("Directorio de Clientes VIP - Catys");
-        setSize(900, 600);
+        clienteDAO = new ClienteDAO();
+        initComponents();
+        cargarDatosTabla();
+    }
+
+    private void initComponents() {
+        setTitle("Gestión de Clientes - Tienda Catys");
+        setSize(900, 550); // Un poco más ancho para mejor lectura
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(15, 15));
+        getContentPane().setBackground(new Color(245, 245, 245)); // Color de fondo suave
 
-        // 1. HEADER
-        JPanel header = new JPanel(new FlowLayout(FlowLayout.LEFT, 30, 20));
-        header.setBackground(COLOR_HEADER);
-        
-        JLabel lblTitulo = new JLabel("👥 CARTERA DE CLIENTES");
-        // CORRECCIÓN 1: Forzar fuente Emoji en el título
-        lblTitulo.setFont(new Font("Segoe UI Emoji", Font.BOLD, 24)); 
-        lblTitulo.setForeground(Color.WHITE);
-        
-        header.add(lblTitulo);
-        add(header, BorderLayout.NORTH);
+        // --- TÍTULO SUPERIOR ---
+        JLabel lblTitulo = new JLabel("MANTENIMIENTO DE CLIENTES", SwingConstants.CENTER);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblTitulo.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
+        add(lblTitulo, BorderLayout.NORTH);
 
-        // 2. TABLA
-        ClienteDAO dao = new ClienteDAO();
-        DefaultTableModel modelo = dao.listarClientes();
-        
-        JTable tabla = new JTable(modelo);
-        estilizarTabla(tabla);
+        // --- TABLA ESTILIZADA ---
+        String[] columnas = {"ID", "DNI", "Nombre Completo", "Teléfono"};
+        modeloTabla = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
 
-        JScrollPane scroll = new JScrollPane(tabla);
-        scroll.getViewport().setBackground(Color.WHITE);
-        scroll.setBorder(new EmptyBorder(20, 20, 20, 20));
-        
-        add(scroll, BorderLayout.CENTER);
+        tablaClientes = new JTable(modeloTabla);
+        tablaClientes.setRowHeight(30); // Filas más altas
+        tablaClientes.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tablaClientes.setSelectionBackground(new Color(173, 216, 230));
+        tablaClientes.setShowVerticalLines(false); // Diseño más moderno sin líneas verticales
 
-        // 3. BARRA INFERIOR (BOTONES)
-        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
-        footer.setBackground(Color.WHITE);
-
-        // Botón Nuevo
-        BotonRedondeado btnNuevo = new BotonRedondeado("➕ REGISTRAR NUEVO", COLOR_NARANJA, new Color(230, 80, 50), Color.WHITE);
-        btnNuevo.setPreferredSize(new Dimension(220, 45));
-        
-        // Botón Cerrar
-        JButton btnCerrar = new JButton("Cerrar");
-        btnCerrar.setPreferredSize(new Dimension(100, 45));
-        btnCerrar.setBackground(Color.WHITE);
-        btnCerrar.setForeground(Color.GRAY);
-        btnCerrar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        btnCerrar.setFocusPainted(false);
-        btnCerrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // ACCIONES
-        btnNuevo.addActionListener(e -> {
-            this.dispose(); // Cerramos la lista
-            new RegistroClienteFrame().setVisible(true); // Abrimos el registro
-        });
-        
-        btnCerrar.addActionListener(e -> dispose());
-
-        footer.add(btnCerrar);
-        footer.add(btnNuevo);
-        add(footer, BorderLayout.SOUTH);
-    }
-
-    private void estilizarTabla(JTable tabla) {
-        tabla.setRowHeight(35);
-        tabla.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        tabla.setShowVerticalLines(false);
-        tabla.setGridColor(new Color(230, 230, 230));
-        
-        JTableHeader header = tabla.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(new Color(255, 99, 71)); // Encabezado Naranja
+        // Estilo a la cabecera
+        JTableHeader header = tablaClientes.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        header.setBackground(new Color(52, 73, 94));
         header.setForeground(Color.WHITE);
-        header.setOpaque(true);
-        header.setPreferredSize(new Dimension(0, 40));
 
+        // Centrar columnas específicas (ID y DNI)
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        tabla.setDefaultRenderer(Object.class, centerRenderer);
+        tablaClientes.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+        tablaClientes.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+
+        // IMPORTANTE: El JScrollPane permite que la tabla sea "infinita" y scrollee
+        JScrollPane scrollPane = new JScrollPane(tablaClientes);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        add(scrollPane, BorderLayout.CENTER);
+
+        // --- PANEL DE BOTONES ---
+        JPanel panelAcciones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15));
+        panelAcciones.setBackground(new Color(245, 245, 245));
+
+        JButton btnNuevo = crearBoton("Agregar Nuevo", new Color(46, 204, 113));
+        JButton btnEliminar = crearBoton("Eliminar", new Color(231, 76, 60));
+        JButton btnRefrescar = crearBoton("Actualizar", new Color(52, 152, 219));
+
+        btnNuevo.addActionListener(e -> {
+            new RegistroClienteFrame().setVisible(true);
+        });
+
+        btnEliminar.addActionListener(e -> accionEliminar());
+        btnRefrescar.addActionListener(e -> cargarDatosTabla());
+
+        panelAcciones.add(btnRefrescar);
+        panelAcciones.add(btnNuevo);
+        panelAcciones.add(btnEliminar);
+
+        add(panelAcciones, BorderLayout.SOUTH);
     }
 
-    // Botón bonito
-    static class BotonRedondeado extends JButton {
-        private Color cN, cH;
-        public BotonRedondeado(String t, Color n, Color h, Color f) {
-            super(t); cN=n; cH=h; setContentAreaFilled(false); setFocusPainted(false); setBorderPainted(false);
-            setForeground(f); 
-            // CORRECCIÓN 2: Forzar fuente Emoji en el botón para que se vea el "➕"
-            setFont(new Font("Segoe UI Emoji", Font.BOLD, 14)); 
-            setCursor(new Cursor(Cursor.HAND_CURSOR)); setBackground(cN);
-            addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent e) { setBackground(cH); repaint(); }
-                public void mouseExited(java.awt.event.MouseEvent e) { setBackground(cN); repaint(); }
+    // Método auxiliar para crear botones con estilo uniforme
+    private JButton crearBoton(String texto, Color colorFondo) {
+        JButton btn = new JButton(texto);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setForeground(Color.WHITE);
+        btn.setBackground(colorFondo);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(150, 40));
+        return btn;
+    }
+
+    private void cargarDatosTabla() {
+        modeloTabla.setRowCount(0);
+        List<Cliente> lista = clienteDAO.obtenerTodos();
+        
+        // El problema de que "no se ven" suele ser porque la lista llega vacía o 
+        // el scrollPane no está bien configurado. Aquí los imprimimos todos.
+        for (Cliente c : lista) {
+            modeloTabla.addRow(new Object[]{
+                c.getId(),
+                c.getDni(),
+                c.getNombre(),
+                c.getTelefono()
             });
         }
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D)g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(getBackground()); g2.fill(new RoundRectangle2D.Float(0,0,getWidth(),getHeight(),10,10));
-            super.paintComponent(g); g2.dispose();
+    }
+
+    private void accionEliminar() {
+        int fila = tablaClientes.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un cliente para eliminar.");
+            return;
+        }
+
+        int id = (int) tablaClientes.getValueAt(fila, 0);
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿Eliminar cliente seleccionado?");
+        
+        if (confirmar == JOptionPane.YES_OPTION) {
+            if (clienteDAO.eliminarCliente(id)) {
+                cargarDatosTabla();
+                JOptionPane.showMessageDialog(this, "Eliminado con éxito.");
+            }
         }
     }
 }
