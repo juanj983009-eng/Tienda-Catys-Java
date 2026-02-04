@@ -1,4 +1,4 @@
-#Tienda Catys - Sistema ERP & POS Gastronómico Integral
+# Tienda Catys - Sistema ERP & POS Gastronómico Integral
 
 Este proyecto es una solución **Enterprise Resource Planning (ERP)** y **Punto de Venta (POS)** de escritorio, desarrollada en **Java (Swing)** y **SQL Server**. Está diseñado para gestionar el flujo completo de un restaurante: desde la administración de inventarios y clientes hasta el monitoreo de pedidos en cocina y analítica financiera avanzada.
 
