@@ -363,3 +363,61 @@
 [2026-04-26 07:16:54] [INFO   ] Navegación → TIENDA | Usuario: admin 
 [2026-05-10 18:21:42] [INFO   ] Iniciando Catys ERP/POS v4.0... 
 [2026-05-10 18:22:18] [SEVERE ] Error inesperado durante el login 
+[2026-05-10 18:26:00] [INFO   ] Iniciando Catys ERP/POS v4.0... 
+[2026-05-10 18:26:36] [SEVERE ] Error inesperado durante el login 
+[2026-05-10 18:28:57] [WARNING] Intento de login fallido — usuario no encontrado: juan 
+[2026-05-10 18:29:05] [WARNING] Intento de login fallido — contraseña incorrecta para: admin 
+[2026-05-10 18:29:11] [WARNING] Intento de login fallido — usuario no encontrado: juan 
+[2026-05-10 18:29:54] [WARNING] Intento de login fallido — usuario no encontrado: juan_admin 
+[2026-05-10 18:30:00] [WARNING] Intento de login fallido — usuario no encontrado: juan_admin 
+[2026-05-10 18:31:14] [WARNING] Intento de login fallido — contraseña incorrecta para: admin 
+[2026-05-10 18:32:25] [INFO   ] Autenticación exitosa para: admin | Rol: ADMIN 
+[2026-05-10 18:32:25] [INFO   ] onLoginExitoso → construyendo AppShell para: admin 
+[2026-05-10 18:32:25] [INFO   ] Navegación → DASHBOARD | Usuario: admin 
+[2026-05-10 18:32:25] [INFO   ] Productos cargados — Criollo:7 | Chifa:6 | FastFood:6 | Bebidas:4 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\anticuchos.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\causa.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\ceviche.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\lomo.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\mostrito.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\huancaina.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\seco.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\chaufa.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\chijaukay.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\kamlu.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\sopa.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\tallarin.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\wantan.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\alitas.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\club.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\hamburguesa.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\pizza.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\pollo.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\salchipapa.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\chicha.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\incakola.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\maracuya.jpg 
+[2026-05-10 18:32:26] [INFO   ] Imagen cargada desde disco: D:\Proyecto Catys\Tienda Catys\imagenes\limonada.jpg 
+[2026-05-10 18:32:31] [INFO   ] Navegación → TIENDA | Usuario: admin 
+[2026-05-10 18:32:34] [INFO   ] Navegación → INVENTARIO | Usuario: admin 
+[2026-05-10 18:32:35] [INFO   ] Navegación → REPORTES | Usuario: admin 
+[2026-05-10 18:32:36] [INFO   ] Navegación → INVENTARIO | Usuario: admin 
+[2026-05-10 18:32:37] [INFO   ] Navegación → TIENDA | Usuario: admin 
+[2026-05-10 18:32:37] [INFO   ] Navegación → DASHBOARD | Usuario: admin 
+[2026-05-10 18:32:38] [INFO   ] Navegación → TIENDA | Usuario: admin 
+[2026-05-10 18:32:38] [INFO   ] Navegación → INVENTARIO | Usuario: admin 
+[2026-05-10 18:32:39] [INFO   ] Navegación → REPORTES | Usuario: admin 
+[2026-05-10 18:32:40] [INFO   ] Navegación → INVENTARIO | Usuario: admin 
+[2026-05-10 18:32:40] [INFO   ] Navegación → TIENDA | Usuario: admin 
+[2026-05-10 18:32:41] [INFO   ] Navegación → TIENDA | Usuario: admin 
+[2026-05-10 18:32:41] [INFO   ] Navegación → DASHBOARD | Usuario: admin 
+[2026-05-10 18:32:42] [INFO   ] Navegación → TIENDA | Usuario: admin 
+[2026-05-10 18:32:42] [INFO   ] Navegación → INVENTARIO | Usuario: admin 
+[2026-05-10 18:32:43] [INFO   ] Navegación → REPORTES | Usuario: admin 
+[2026-05-10 18:32:44] [INFO   ] Navegación → INVENTARIO | Usuario: admin 
+[2026-05-10 18:32:46] [INFO   ] Navegación → TIENDA | Usuario: admin 
+[2026-05-10 18:32:46] [INFO   ] Navegación → DASHBOARD | Usuario: admin 
+[2026-05-10 18:32:51] [INFO   ] Navegación → TIENDA | Usuario: admin 
+[2026-05-10 18:33:19] [INFO   ] Procesando venta — Cliente: Pedro | Ítems: 3 | Subtotal: S/29.50 | Sin descuento | Total: S/29.50 
+[2026-05-10 18:33:19] [INFO   ] Venta registrada exitosamente para cliente: Pedro | Total: S/ 29.50 
+[2026-05-10 18:33:19] [INFO   ] PDF generado y abierto: Ticket_20260510_183319.pdf 
