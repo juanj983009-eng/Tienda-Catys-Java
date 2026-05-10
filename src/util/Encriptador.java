@@ -8,7 +8,6 @@ public class Encriptador {
     public static String encriptarPassword(String passwordPlano) {
         return BCrypt.hashpw(passwordPlano, BCrypt.gensalt(12));
     }
-
     // Compara la clave que ingresa el usuario con el hash de la BD
     public static boolean verificarPassword(String passwordPlano, String passwordHaseado) {
         try {

@@ -1,16 +1,25 @@
 package util;
 
-import com.itextpdf.text.*;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.ArrayList;
+
 import modelo.Producto;
-import java.util.Map;
-import java.util.HashMap;
 
 public class GeneradorPDF {
 
@@ -102,15 +111,20 @@ public class GeneradorPDF {
 
             documento.close();
             
-            // Abrir el archivo automáticamente (Opcional, funciona en Windows)
+            // Abrir el PDF automáticamente en Windows con ProcessBuilder
+            // (más seguro que Runtime.exec — cierra el proceso hijo correctamente)
             try {
-                Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + nombreArchivo);
-            } catch (Exception e) {}
-
-            System.out.println("PDF Generado: " + nombreArchivo);
+                Process proceso = new ProcessBuilder("rundll32", "url.dll,FileProtocolHandler", nombreArchivo)
+                    .redirectErrorStream(true)
+                    .start();
+                proceso.getInputStream().close(); // Cerrar el stream para evitar fuga de recursos
+                AppLogger.info("PDF generado y abierto: " + nombreArchivo);
+            } catch (Exception e) {
+                AppLogger.warn("No se pudo abrir el PDF automáticamente: " + e.getMessage());
+            }
 
         } catch (Exception e) {
-            System.out.println("Error al crear PDF: " + e.getMessage());
+            AppLogger.error("Error al generar el PDF del ticket", e);
         }
     }
 }
