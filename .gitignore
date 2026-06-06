@@ -1,4 +1,53 @@
-bin/
-.vscode/
+# ==========================================
+# Catys Enterprise - Official .gitignore
+# ==========================================
+
+# --- Java / Maven / Spring Boot ---
+target/
 *.class
-config.properties
+*.jar
+*.war
+*.ear
+*.nar
+*.m2/
+.mvn/
+help.md
+
+# --- Node / React / Frontend ---
+catys-web/node_modules/
+catys-web/dist/
+catys-web/build/
+.eslintcache
+
+# --- IDEs & Editors ---
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.factorypath
+# Nota: Si usas VS Code y quieres mantener tus configs de equipo, 
+# puedes comentar la línea de abajo, pero lo ideal es excluirla:
+.vscode/
+
+# --- Operating System & Logs ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.log
+*.log.*
+catys-app.log*
+
+# --- Environment Variables & Secrets ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# --- Docker & Local Data Persistence ---
+# Excluimos la carpeta local de imágenes para que el repositorio sea ligero
+imagenes/

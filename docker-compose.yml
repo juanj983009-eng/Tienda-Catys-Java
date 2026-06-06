@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  catys-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: catys-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=CatysErpPass2026!
+    ports:
+      - "1435:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'CatysErpPass2026!' -C -Q 'SELECT 1'"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    networks:
+      - catys-network
+
+  catys-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: catys-backend
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlserver://catys-db:1433;databaseName=CatysDB;encrypt=true;trustServerCertificate=true;
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=CatysErpPass2026!
+    volumes:
+      - ./imagenes:/app/imagenes
+    depends_on:
+      catys-db:
+        condition: service_healthy
+    networks:
+      - catys-network
+
+  catys-frontend:
+    image: node:20-alpine
+    container_name: catys-frontend
+    volumes:
+      - ./catys-web:/app
+      - /app/node_modules
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5174:5173"
+    depends_on:
+      - catys-backend
+    networks:
+      - catys-network
+
+networks:
+  catys-network:
+    driver: bridge
+
+volumes:
+  mssql-data:
