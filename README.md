@@ -46,7 +46,7 @@ El sistema implementa rigurosamente las mejores prácticas de la industria, aseg
 
 La estructura del directorio ha sido normalizada para cumplir con los estándares de proyectos de grado empresarial:
 
-
+```text
 TIENDA CATYS/
 ├── .github/                   # Configuraciones de repositorio (modernización excluida)
 ├── catys-web/                 # Código fuente del frontend (React + Vite)
@@ -72,7 +72,8 @@ TIENDA CATYS/
 │           └── application.properties # Configuraciones del entorno de la aplicación
 ├── Dockerfile                 # Definición de construcción de imagen del backend
 ├── docker-compose.yml         # Archivo de orquestación multi-contenedor
-└── pom.xml                    # Archivo de configuración y dependencias de Maven
+└── pom.xml                    # Archivo de configuración y dependencias de Maven 
+```
 
 ---
 
