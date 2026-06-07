@@ -51,3 +51,6 @@ catys-app.log*
 # --- Docker & Local Data Persistence ---
 # Excluimos la carpeta local de imágenes para que el repositorio sea ligero
 imagenes/
+
+# --- Carpetas temporales de desarrollo ---
+.github/modernize/

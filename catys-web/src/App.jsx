@@ -1,216 +1,151 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Cat, ChefHat, Users, TrendingUp, LogOut, Grid, Boxes, LayoutDashboard } from 'lucide-react';
-import PuntoVenta from './components/PuntoVenta';
-import PedidosCocina from './views/PedidosCocina';
-import ControlMesas from './views/ControlMesas';
-import ReportesFinancieros from './views/ReportesFinancieros';
-import ClientesVIP from './views/ClientesVIP';
-import InventarioInsumos from './views/InventarioInsumos';
-import ResumenGeneral from './views/ResumenGeneral';
-
+import { useInitialHandshake } from './hooks/useInitialHandshake';
+import { MainLayout } from './components/layout/MainLayout';
+import { ProductGrid } from './components/pos/ProductGrid';
+import { Cat, Sparkles, AlertCircle, ShoppingCart } from 'lucide-react';
 
 function App() {
-  const [vistaActual, setVistaActual] = useState('resumen');
-  const logError = (msg) => {
-    console.error(msg);
+  const { loading, handshakeMessage } = useInitialHandshake();
+  const [vistaActual, setVistaActual] = useState('pos');
+  const [cartCount, setCartCount] = useState(0);
+  const [lastAddedProduct, setLastAddedProduct] = useState(null);
+
+  // Mock de datos para POS
+  const mockProducts = [
+    { id: 1, nombre: 'Burger Triple Catys', categoria: 'Hamburguesas', precio: 14.90, stock: 12, imagen: '🍔', calificacion: 4.9, popular: true },
+    { id: 2, nombre: 'Papas Cheddar & Bacon', categoria: 'Acompañamientos', precio: 6.50, stock: 25, imagen: '🍟', calificacion: 4.7, popular: true },
+    { id: 3, nombre: 'Malteada Oreo Exclusiva', categoria: 'Bebidas', precio: 7.00, stock: 15, imagen: '🥤', calificacion: 4.8, popular: false },
+    { id: 4, nombre: 'Pizza Catys Suprema', categoria: 'Pizzas', precio: 19.90, stock: 5, imagen: '🍕', calificacion: 5.0, popular: true },
+    { id: 5, nombre: 'Alitas BBQ Crujientes', categoria: 'Entradas', precio: 10.50, stock: 18, imagen: '🍗', calificacion: 4.6, popular: false },
+    { id: 6, nombre: 'Ensalada Fresca de la Casa', categoria: 'Saludable', precio: 8.00, stock: 20, imagen: '🥗', calificacion: 4.3, popular: false },
+    { id: 7, nombre: 'Tarta de Fresa y Limón', categoria: 'Postres', precio: 5.00, stock: 8, imagen: '🍰', calificacion: 4.7, popular: false },
+    { id: 8, nombre: 'Café Espresso Doble', categoria: 'Bebidas', precio: 3.50, stock: 50, imagen: '☕', calificacion: 4.9, popular: false }
+  ];
+
+  const handleAddToCart = (product) => {
+    setCartCount(prev => prev + 1);
+    setLastAddedProduct(product.nombre);
+    setTimeout(() => setLastAddedProduct(null), 3000);
   };
 
-  return (
-    <div className="flex bg-slate-950 text-slate-100 min-h-screen font-sans print:bg-white print:text-black print:min-h-0 print:block">
-      {/* Barra Lateral / Sidebar */}
-      <aside className="print:hidden w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
-        {/* Cabecera Sidebar */}
-        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-tr from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md shadow-orange-500/10 shrink-0">
-            <Cat className="w-6 h-6 text-white" />
+  // 1. PANTALLA DE CARGA INICIAL (Handshake persistido)
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-100 font-sans p-6 select-none">
+        <div className="relative flex flex-col items-center max-w-sm w-full text-center">
+          {/* Logo animado */}
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-amber-500/20 rounded-3xl filter blur-xl animate-pulse"></div>
+            <div className="w-20 h-20 bg-gradient-to-tr from-orange-500 to-amber-500 rounded-3xl flex items-center justify-center shadow-lg shadow-orange-500/20 relative z-10 border border-amber-400/20">
+              <Cat className="w-12 h-12 text-white animate-bounce" />
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-md leading-tight text-slate-100 tracking-wide">Catys ERP</h1>
-            <span className="text-[10px] text-orange-500 font-semibold tracking-widest uppercase">Admin Panel</span>
+
+          {/* Información del Sistema */}
+          <h1 className="text-2xl font-black tracking-wide text-slate-100 mb-2">
+            Catys Enterprise <span className="text-amber-500">ERP</span>
+          </h1>
+          <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mb-6">
+            Iniciando Handshake de Seguridad
+          </p>
+
+          {/* Barra de progreso animada */}
+          <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden mb-4 border border-slate-800">
+            <div className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full animate-[loading_1.5s_ease-in-out_infinite] w-2/3"></div>
+          </div>
+
+          {/* Mensaje de estado dinámico */}
+          <div className="flex items-center justify-center gap-2 text-sm text-slate-300 font-medium">
+            <Sparkles className="w-4 h-4 text-amber-500 animate-spin" />
+            <span>{handshakeMessage}</span>
+          </div>
+
+          {/* Detalle inferior */}
+          <div className="absolute bottom-[-100px] text-[10px] text-slate-600 font-mono">
+            SECURE HANDSHAKE // PORT: 443 // CATYS-SYS-v5
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {/* Menú de Navegación */}
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto pr-1">
-          {/* Grupo 1: OPERACIONES */}
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold tracking-wider text-slate-500 mb-2 px-4 uppercase">
-              Operaciones
-            </span>
-            <button
-              onClick={() => setVistaActual('pos')}
-              className={`w-full px-4 py-3 text-left text-sm font-semibold tracking-wide flex items-center gap-3 transition-all duration-200 border-l-4 ${
-                vistaActual === 'pos'
-                  ? 'bg-slate-800/60 text-slate-100 border-amber-500 rounded-r-xl rounded-l-none'
-                  : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800/40 hover:text-slate-200 rounded-xl'
-              }`}
-            >
-              <ShoppingCart className="w-5 h-5" />
-              Punto de Venta
-            </button>
-            <button
-              onClick={() => setVistaActual('cocina')}
-              className={`w-full px-4 py-3 text-left text-sm font-semibold tracking-wide flex items-center gap-3 transition-all duration-200 border-l-4 ${
-                vistaActual === 'cocina'
-                  ? 'bg-slate-800/60 text-slate-100 border-amber-500 rounded-r-xl rounded-l-none'
-                  : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800/40 hover:text-slate-200 rounded-xl'
-              }`}
-            >
-              <ChefHat className="w-5 h-5" />
-              Pedidos Cocina
-            </button>
-            <button
-              onClick={() => setVistaActual('mesas')}
-              className={`w-full px-4 py-3 text-left text-sm font-semibold tracking-wide flex items-center gap-3 transition-all duration-200 border-l-4 ${
-                vistaActual === 'mesas'
-                  ? 'bg-slate-800/60 text-slate-100 border-amber-500 rounded-r-xl rounded-l-none'
-                  : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800/40 hover:text-slate-200 rounded-xl'
-              }`}
-            >
-              <Grid className="w-5 h-5" />
-              Control de Mesas
-            </button>
+  // Estilo para simular animación de barra
+  const keyframeStyle = `
+    @keyframes loading {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+  `;
+
+  // 2. APLICACIÓN PRINCIPAL (Layout + Rutas/Vistas)
+  return (
+    <>
+      <style>{keyframeStyle}</style>
+      <MainLayout vistaActual={vistaActual} setVistaActual={setVistaActual}>
+        
+        {/* Notificación flotante de adición de producto */}
+        {lastAddedProduct && (
+          <div className="fixed bottom-4 right-4 bg-slate-900 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl shadow-lg z-50 animate-bounce flex items-center gap-2 text-sm font-semibold">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span>¡{lastAddedProduct} añadido al carrito!</span>
           </div>
+        )}
 
-          {/* Grupo 2: ANÁLISIS */}
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold tracking-wider text-slate-500 mt-6 mb-2 px-4 uppercase">
-              Análisis
-            </span>
-            <button
-              onClick={() => setVistaActual('resumen')}
-              className={`w-full px-4 py-3 text-left text-sm font-semibold tracking-wide flex items-center gap-3 transition-all duration-200 border-l-4 ${
-                vistaActual === 'resumen'
-                  ? 'bg-slate-800/60 text-slate-100 border-amber-500 rounded-r-xl rounded-l-none'
-                  : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800/40 hover:text-slate-200 rounded-xl'
-              }`}
-            >
-              <LayoutDashboard className="w-5 h-5" />
-              Resumen General
-            </button>
-            <button
-              onClick={() => setVistaActual('reportes')}
-              className={`w-full px-4 py-3 text-left text-sm font-semibold tracking-wide flex items-center gap-3 transition-all duration-200 border-l-4 ${
-                vistaActual === 'reportes'
-                  ? 'bg-slate-800/60 text-slate-100 border-amber-500 rounded-r-xl rounded-l-none'
-                  : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800/40 hover:text-slate-200 rounded-xl'
-              }`}
-            >
-              <TrendingUp className="w-5 h-5" />
-              Reportes Financieros
-            </button>
-          </div>
-
-          {/* Grupo 3: GESTIÓN */}
-          <div className="flex flex-col">
-            <span className="text-xs font-semibold tracking-wider text-slate-500 mt-6 mb-2 px-4 uppercase">
-              Gestión
-            </span>
-            <button
-              onClick={() => setVistaActual('clientes')}
-              className={`w-full px-4 py-3 text-left text-sm font-semibold tracking-wide flex items-center gap-3 transition-all duration-200 border-l-4 ${
-                vistaActual === 'clientes'
-                  ? 'bg-slate-800/60 text-slate-100 border-amber-500 rounded-r-xl rounded-l-none'
-                  : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800/40 hover:text-slate-200 rounded-xl'
-              }`}
-            >
-              <Users className="w-5 h-5" />
-              Clientes VIP
-            </button>
-            <button
-              onClick={() => setVistaActual('inventario')}
-              className={`w-full px-4 py-3 text-left text-sm font-semibold tracking-wide flex items-center gap-3 transition-all duration-200 border-l-4 ${
-                vistaActual === 'inventario'
-                  ? 'bg-slate-800/60 text-slate-100 border-amber-500 rounded-r-xl rounded-l-none'
-                  : 'bg-transparent text-slate-400 border-transparent hover:bg-slate-800/40 hover:text-slate-200 rounded-xl'
-              }`}
-            >
-              <Boxes className="w-5 h-5" />
-              Inventario &amp; Insumos
-            </button>
-          </div>
-        </nav>
-
-        {/* Pie Sidebar */}
-        <div className="mt-auto border-t border-slate-800/60 pt-2">
-          {/* Perfil de Operario */}
-          <div className="flex items-center justify-between px-4 py-3 mb-2">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-md">
-                JP
+        {/* CONTENIDO DENTRO DE VISTAS */}
+        {vistaActual === 'pos' ? (
+          <div className="space-y-6">
+            {/* Cabecera / Acciones rápidas del POS */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900/40 p-5 rounded-2xl border border-slate-900">
+              <div>
+                <h3 className="font-bold text-lg text-slate-100 flex items-center gap-2">
+                  <span>Productos Disponibles</span>
+                  <span className="text-xs bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20 font-medium">
+                    {mockProducts.length} items
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">Selecciona productos para armar el pedido actual</p>
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-200 leading-tight truncate">Juan José</p>
-                <p className="text-xs text-slate-500 truncate">Administrador</p>
+
+              {/* Botón rápido del carrito */}
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-xl">
+                  <ShoppingCart className="w-4 h-4 text-amber-500" />
+                  <span className="text-sm font-bold text-slate-200">Carrito ({cartCount})</span>
+                </div>
+                {cartCount > 0 && (
+                  <button 
+                    onClick={() => setCartCount(0)}
+                    className="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 transition-colors"
+                  >
+                    Vaciar
+                  </button>
+                )}
               </div>
             </div>
-            <LogOut className="w-4 h-4 text-slate-500 hover:text-red-400 cursor-pointer transition-colors shrink-0" />
-          </div>
-          
-          <div className="p-4 border-t border-slate-800/40 text-[10px] text-slate-500 text-center font-medium">
-            ERP Web v5.0 — NextGen UI
-          </div>
-        </div>
-      </aside>
 
-      {/* Panel Principal */}
-      <main className="print:p-0 print:h-auto print:overflow-visible flex-1 p-8 flex flex-col h-screen overflow-hidden">
-        {/* Encabezado */}
-        <header className="print:hidden flex justify-between items-center mb-8 shrink-0">
-          <div>
-            <h2 className="text-xl font-bold text-slate-100 tracking-wide">
-              {vistaActual === 'resumen' && 'Resumen de Operaciones'}
-              {vistaActual === 'pos' && 'Catálogo Visual & POS'}
-              {vistaActual === 'cocina' && 'Pedidos en Cocina'}
-              {vistaActual === 'mesas' && 'Control de Mesas'}
-              {vistaActual === 'reportes' && 'Reportes Financieros'}
-              {vistaActual === 'clientes' && 'Gestión de Clientes VIP'}
-              {vistaActual === 'inventario' && 'Inventario & Insumos'}
-            </h2>
-            <p className="text-xs text-slate-550 mt-1">
-              {vistaActual === 'resumen' && 'Monitoreo en tiempo real de Tienda Catys'}
-              {vistaActual === 'pos' && 'Registra pedidos y descuenta stock al instante'}
-              {vistaActual === 'cocina' && 'Monitoreo de comandas y preparación de platos'}
-              {vistaActual === 'mesas' && 'Monitoreo y asignación de mesas en salón'}
-              {vistaActual === 'reportes' && 'Visualiza ingresos, egresos y auditorías de caja'}
-              {vistaActual === 'clientes' && 'Fidelización de clientes, historial de compras y puntos'}
-              {vistaActual === 'inventario' && 'Control de stock de ingredientes e insumos críticos'}
+            {/* Render de la Grilla de Productos */}
+            <ProductGrid products={mockProducts} onAddToCart={handleAddToCart} />
+          </div>
+        ) : (
+          /* Vista genérica para otras opciones del menú */
+          <div className="flex flex-col items-center justify-center py-16 text-center max-w-md mx-auto">
+            <div className="w-14 h-14 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-center mb-4 text-slate-400">
+              <AlertCircle className="w-7 h-7" />
+            </div>
+            <h3 className="font-bold text-lg text-slate-200">Módulo en Desarrollo</h3>
+            <p className="text-sm text-slate-400 mt-2">
+              El módulo de <span className="font-semibold text-amber-500">"{vistaActual.toUpperCase()}"</span> está siendo refactorizado por completo en la arquitectura limpia. Usa el menú para volver al Punto de Venta.
             </p>
+            <button
+              onClick={() => setVistaActual('pos')}
+              className="mt-6 px-4 py-2.5 bg-slate-900 hover:bg-slate-850 text-amber-400 font-bold rounded-xl border border-slate-800 transition-all text-sm"
+            >
+              Volver al Punto de Venta
+            </button>
           </div>
-        </header>
-
-        {/* Contenido Condicional */}
-        <div className="flex-1 overflow-hidden">
-          {vistaActual === 'resumen' && (
-            <ResumenGeneral />
-          )}
-
-          {vistaActual === 'pos' && (
-            <PuntoVenta />
-          )}
-
-          {vistaActual === 'cocina' && (
-            <PedidosCocina />
-          )}
-
-          {vistaActual === 'reportes' && (
-            <ReportesFinancieros />
-          )}
-
-          {vistaActual === 'clientes' && (
-            <ClientesVIP />
-          )}
-
-          {vistaActual === 'mesas' && (
-            <ControlMesas setVistaActual={setVistaActual} />
-          )}
-
-          {vistaActual === 'inventario' && (
-            <InventarioInsumos />
-          )}
-        </div>
-      </main>
-    </div>
+        )}
+      </MainLayout>
+    </>
   );
 }
 
