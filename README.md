@@ -92,7 +92,7 @@ El script de inicialización automatiza la carga de **26 productos comerciales r
 
 ---
 
-## 6. Mecanismos de Orquestación y Despliegue con Docker
+## 6. Despliegue de Infraestructura y Contenerización (Docker)
 
 Para mitigar los fallos de conectividad derivados de los tiempos de arranque de las bases de datos (*Race Conditions*), el archivo `docker-compose.yml` implementa una arquitectura defensiva basada en políticas de verificación de salud (*Healthchecks*).
 
@@ -100,22 +100,66 @@ El backend no inicia su proceso de ejecución hasta que el contenedor de Microso
 
 ### Comandos de Control de Infraestructura
 
-* Para iniciar la aplicación de forma integrada, construyendo las imágenes locales y levantando los servicios en segundo plano, ejecute:
-
-docker-compose up --build -d
-
-* Para detener los procesos de los contenedores de forma segura, permitiendo que Spring Boot y SQL Server liberen los recursos de memoria RAM y cierren los pools de conexiones activas sin corromper los datos (*Graceful Shutdown*), ejecute:
-
-docker-compose stop
-
-* Para desmontar completamente la infraestructura local, removiendo los contenedores y las redes virtuales creadas pero preservando intactos los volúmenes de datos persistentes, ejecute:
-
-docker-compose down
+* **Levantar todo el entorno (Base de Datos + API + Frontend):**
+  ```bash
+  docker-compose up --build -d
+  ```
+* **Detener los servicios (Graceful Shutdown):**
+  ```bash
+  docker-compose stop
+  ```
+* **Desmontar contenedores y redes virtuales:**
+  ```bash
+  docker-compose down
+  ```
 
 ---
 
-## 7. Instrucciones para la Portabilidad de Nuevos Desarrollos
+## 7. Despliegue Local para Desarrollo (Sin Docker)
 
-Cualquier desarrollador que descargue este repositorio podrá desplegar el entorno completo de forma automática ejecutando un único comando de Docker Compose. El sistema inicializará el motor de base de datos, inyectará de forma idempotente las estructuras relacionales, cargará el catálogo oficial de 26 productos y expondrá la API Web lista para ser consumida por el frontend en React.
+Si prefiere ejecutar el proyecto de forma nativa en su máquina de desarrollo para depuración rápida o pruebas locales:
 
-No se requieren configuraciones manuales locales ni instalaciones de herramientas externas, asegurando un flujo de Integración y Despliegue Continuo (CI/CD) transparente y profesional.
+### Requisitos Previos
+* **Java JDK 17** o superior instalado.
+* **Maven 3.8+** (opcional, o utilizar el wrapper `./mvnw`).
+* **Node.js v18+** y manejador de paquetes **npm**.
+* **Microsoft SQL Server** local o remoto.
+
+### Paso 1: Configurar la Base de Datos
+1. Inicie su gestor de SQL Server (SSMS, Azure Data Studio, etc.).
+2. Ejecute el script idempotente de configuración ubicado en [CatysDB_Setup.sql](file:///D:/Proyectos/Tienda%20Catys/database/CatysDB_Setup.sql). Esto creará la base de datos `CatysDB` y cargará el catálogo de productos inicial de forma automatizada.
+
+### Paso 2: Iniciar el Servidor Backend (Spring Boot)
+1. Modifique el archivo de configuración `src/main/resources/application.properties` con las credenciales de su SQL Server local.
+2. Inicie el servicio de backend en el puerto **8089** (definido en las propiedades):
+   ```bash
+   mvn spring-boot:run
+   ```
+   * *URL base de la API:* [http://localhost:8089/api](http://localhost:8089/api)
+   * *URL de imágenes:* [http://localhost:8089/imagenes](http://localhost:8089/imagenes)
+
+### Paso 3: Iniciar el Frontend (React + Vite)
+1. Navegue al directorio del frontend:
+   ```bash
+   cd catys-web
+   ```
+2. Cree su archivo de variables de entorno `.env` a partir de la plantilla:
+   ```bash
+   copy .env.example .env
+   ```
+3. Instale las dependencias e inicie el servidor de desarrollo de Vite:
+   ```bash
+   npm install
+   npm run dev
+   ```
+   * *Puerto por defecto de Vite:* [http://localhost:5173](http://localhost:5173) (o puertos correlativos de desarrollo como el `5175`).
+
+---
+
+## 8. Puertos de Operación y Mapeo del Sistema
+
+| Servicio | Puerto por Defecto | Protocolo | Configuración / Variables |
+| :--- | :--- | :--- | :--- |
+| **Frontend (React)** | `5173` o `5175` | HTTP | Mapeado por Vite en desarrollo |
+| **Backend REST API** | `8089` | HTTP | `server.port=8089` |
+| **Database (SQL Server)**| `1433` | TCP/IP | Configurado en el connection string |

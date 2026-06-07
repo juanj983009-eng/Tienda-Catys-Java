@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, DollarSign, Wallet, CreditCard, Activity } from 'lucide-react';
+import { TrendingUp, DollarSign, Wallet, CreditCard, Activity, Banknote } from 'lucide-react';
 import { API_BASE_URL } from '../config/api';
 
 function ReportesFinancieros() {
@@ -38,10 +38,16 @@ function ReportesFinancieros() {
 
   const getColor = (name) => {
     const lowercaseName = name.toLowerCase();
-    if (lowercaseName.includes('yape') || lowercaseName.includes('plin')) return 'bg-indigo-600';
-    if (lowercaseName.includes('efectivo')) return 'bg-emerald-600';
-    if (lowercaseName.includes('tarjeta')) return 'bg-sky-600';
-    return 'bg-slate-600';
+    if (lowercaseName.includes('yape') || lowercaseName.includes('plin')) {
+      return 'bg-gradient-to-r from-indigo-600 to-violet-500';
+    }
+    if (lowercaseName.includes('efectivo')) {
+      return 'bg-gradient-to-r from-emerald-600 to-teal-400';
+    }
+    if (lowercaseName.includes('tarjeta')) {
+      return 'bg-gradient-to-r from-blue-600 to-cyan-400';
+    }
+    return 'bg-gradient-to-r from-slate-600 to-slate-500';
   };
 
   return (
@@ -52,7 +58,7 @@ function ReportesFinancieros() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 shrink-0">
         
         {/* KPI: HOY */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-md">
+        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:border-orange-500/20 hover:shadow-[0_0_20px_rgba(249,115,22,0.08)] transition-all duration-300 shadow-md">
           <div className="flex justify-between items-center">
             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Ingresos Hoy</span>
             <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/15">
@@ -62,12 +68,12 @@ function ReportesFinancieros() {
           </div>
           <div className="mt-4 flex items-baseline justify-between">
             <span className="text-2xl font-bold text-slate-100">S/ {dataFinanciera.kpis.dia.toFixed(2)}</span>
-            <span className="text-xs text-slate-500">Transacciones reales</span>
+            <span className="text-slate-500 text-xs font-medium tracking-wide">Transacciones reales</span>
           </div>
         </div>
 
         {/* KPI: ESTA SEMANA */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-md">
+        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:border-orange-500/20 hover:shadow-[0_0_20px_rgba(249,115,22,0.08)] transition-all duration-300 shadow-md">
           <div className="flex justify-between items-center">
             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Esta Semana</span>
             <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/15">
@@ -77,12 +83,12 @@ function ReportesFinancieros() {
           </div>
           <div className="mt-4 flex items-baseline justify-between">
             <span className="text-2xl font-bold text-slate-100">S/ {dataFinanciera.kpis.semana.toFixed(2)}</span>
-            <span className="text-xs text-slate-500">Acumulado</span>
+            <span className="text-slate-500 text-xs font-medium tracking-wide">Acumulado</span>
           </div>
         </div>
 
         {/* KPI: ESTE AÑO */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:border-slate-700 transition-all duration-300 shadow-md">
+        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 flex flex-col justify-between h-32 hover:-translate-y-1 hover:border-orange-500/20 hover:shadow-[0_0_20px_rgba(249,115,22,0.08)] transition-all duration-300 shadow-md">
           <div className="flex justify-between items-center">
             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Este Año</span>
             <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/15">
@@ -92,7 +98,7 @@ function ReportesFinancieros() {
           </div>
           <div className="mt-4 flex items-baseline justify-between">
             <span className="text-2xl font-bold text-slate-100">S/ {dataFinanciera.kpis.ano.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
-            <span className="text-xs text-slate-500">Ejecución anual</span>
+            <span className="text-slate-500 text-xs font-medium tracking-wide">Ejecución anual</span>
           </div>
         </div>
 
@@ -102,7 +108,7 @@ function ReportesFinancieros() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1">
         
         {/* PANEL IZQUIERDO: METODOS DE PAGO */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col h-96">
+        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 flex flex-col h-96 hover:border-orange-500/20 hover:shadow-[0_0_20px_rgba(249,115,22,0.08)] transition-all duration-300">
           <div className="border-b border-slate-800 pb-4 mb-6 shrink-0 flex items-center justify-between">
             <h3 className="font-bold text-sm text-slate-200 uppercase tracking-wider flex items-center gap-2">
               <Activity className="w-4 h-4 text-orange-500" />
@@ -120,19 +126,19 @@ function ReportesFinancieros() {
               dataFinanciera.metodosPago.map((pago, idx) => (
                 <div key={idx} className="space-y-2">
                   <div className="flex justify-between text-xs font-semibold">
-                    <span className="text-slate-300 flex items-center gap-2">
-                      {pago.name.toLowerCase().includes('yape') && <Wallet className="w-4 h-4 text-indigo-400" />}
-                      {pago.name.toLowerCase().includes('efectivo') && <DollarSign className="w-4 h-4 text-emerald-400" />}
-                      {pago.name.toLowerCase().includes('tarjeta') && <CreditCard className="w-4 h-4 text-sky-400" />}
+                    <span className="text-slate-300 flex items-center gap-2 font-medium">
+                      {pago.name.toLowerCase().includes('yape') && <Wallet className="w-4 h-4 text-indigo-400/80" />}
+                      {pago.name.toLowerCase().includes('efectivo') && <Banknote className="w-4 h-4 text-emerald-400/80" />}
+                      {pago.name.toLowerCase().includes('tarjeta') && <CreditCard className="w-4 h-4 text-cyan-400/80" />}
                       {pago.name}
                     </span>
                     <span className="text-slate-100">
-                      S/ {pago.monto.toFixed(2)} <span className="text-slate-500 text-[10px]">({pago.porcentaje}%)</span>
+                      S/ {pago.monto.toFixed(2)} <span className="text-slate-500 text-[10px] font-normal">({pago.porcentaje}%)</span>
                     </span>
                   </div>
 
                   {/* Barra de progreso */}
-                  <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-850">
+                  <div className="w-full bg-slate-950/60 h-2.5 rounded-full overflow-hidden border border-slate-800/80">
                     <div 
                       style={{ width: `${pago.porcentaje}%` }} 
                       className={`h-full ${getColor(pago.name)} rounded-full transition-all duration-1000 ease-out`}
@@ -145,7 +151,7 @@ function ReportesFinancieros() {
         </div>
 
         {/* PANEL DERECHO: PROGRESO MENSUAL */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 flex flex-col h-96">
+        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-6 flex flex-col h-96 hover:border-orange-500/20 hover:shadow-[0_0_20px_rgba(249,115,22,0.08)] transition-all duration-300">
           <div className="border-b border-slate-800 pb-4 mb-6 shrink-0 flex items-center justify-between">
             <h3 className="font-bold text-sm text-slate-200 uppercase tracking-wider flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-amber-500" />
@@ -158,10 +164,10 @@ function ReportesFinancieros() {
           <div className="flex-1 flex items-end justify-between border-b border-l border-slate-800/60 pb-3 pl-4 relative h-64">
             
             {/* Líneas de cuadrícula horizontal */}
-            <div className="absolute left-0 right-0 top-0 border-t border-slate-850/40 border-dashed w-full" />
-            <div className="absolute left-0 right-0 top-1/4 border-t border-slate-850/40 border-dashed w-full" />
-            <div className="absolute left-0 right-0 top-2/4 border-t border-slate-850/40 border-dashed w-full" />
-            <div className="absolute left-0 right-0 top-3/4 border-t border-slate-850/40 border-dashed w-full" />
+            <div className="absolute left-0 right-0 top-0 border-t border-slate-800/60 w-full" />
+            <div className="absolute left-0 right-0 top-1/4 border-t border-slate-800/60 w-full" />
+            <div className="absolute left-0 right-0 top-2/4 border-t border-slate-800/60 w-full" />
+            <div className="absolute left-0 right-0 top-3/4 border-t border-slate-800/60 w-full" />
 
             {loading && dataFinanciera.progressionMensual.length === 0 ? (
               <div className="absolute inset-0 flex items-center justify-center text-slate-500 text-xs">Cargando progresión...</div>
@@ -178,7 +184,7 @@ function ReportesFinancieros() {
                   {/* Barra vertical animada */}
                   <div 
                     style={{ height: `${prog.porcentaje}%` }}
-                    className="w-8 bg-gradient-to-t from-amber-600 to-amber-500 rounded-t-md hover:from-amber-500 hover:to-orange-500 transition-all duration-500 ease-out shadow-md shadow-amber-500/10"
+                    className="w-8 bg-gradient-to-t from-orange-600/80 to-amber-400 rounded-t-lg hover:from-orange-500 hover:to-amber-300 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(249,115,22,0.15)]"
                   />
                   
                   {/* Nombre del mes */}

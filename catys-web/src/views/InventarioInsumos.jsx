@@ -83,9 +83,9 @@ function InventarioInsumos() {
             : 'bg-rose-950/80 border-rose-500/30 text-rose-350'
         }`}>
           {notificacion.tipo === 'success' ? (
-            <CheckCircle className="w-5 h-5 text-emerald-450 shrink-0" />
+            <CheckCircle className="w-5 h-5 text-emerald-455 shrink-0" />
           ) : (
-            <XCircle className="w-5 h-5 text-rose-450 shrink-0" />
+            <XCircle className="w-5 h-5 text-rose-455 shrink-0" />
           )}
           <span className="text-xs font-semibold">{notificacion.mensaje}</span>
         </div>
@@ -101,10 +101,10 @@ function InventarioInsumos() {
               <button
                 key={cat}
                 onClick={() => setCategoriaActiva(cat)}
-                className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
+                className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-300 whitespace-nowrap cursor-pointer ${
                   categoriaActiva === cat
-                    ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/10'
-                    : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200'
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 shadow-lg shadow-orange-500/20'
+                    : 'bg-slate-900 border border-slate-850 text-slate-400 hover:text-slate-200 hover:border-slate-700'
                 }`}
               >
                 {cat}
@@ -121,7 +121,7 @@ function InventarioInsumos() {
               value={buscar}
               onChange={(e) => setBuscar(e.target.value)}
               placeholder="Buscar insumo..."
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30 transition-all"
             />
           </div>
         </div>
@@ -135,14 +135,14 @@ function InventarioInsumos() {
             return (
               <div
                 key={item.id}
-                className={`transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:border-slate-700 hover:shadow-md p-5 rounded-2xl flex flex-col justify-between border relative group ${
+                className={`transition-all duration-300 ease-out transform hover:-translate-y-0.5 p-5 rounded-2xl flex flex-col justify-between border relative group ${
                   stockBajo 
-                    ? 'border-rose-500/30 bg-rose-950/10' 
-                    : 'bg-slate-900/40 border-slate-800'
+                    ? 'border-rose-500/20 bg-rose-950/10 hover:border-rose-500/35 hover:shadow-[0_0_20px_rgba(244,63,94,0.05)]' 
+                    : 'bg-slate-900/50 backdrop-blur-md border border-slate-800 hover:border-slate-700/60 hover:shadow-[0_0_20px_rgba(249,115,22,0.05)]'
                 }`}
               >
                 {/* Cabecera Tarjeta */}
-                <div className="flex justify-between items-start gap-2">
+                <div className="flex justify-between items-start gap-2 z-10">
                   <div>
                     <h4 className="font-bold text-slate-200 text-sm tracking-wide group-hover:text-amber-400 transition-colors">
                       {item.nombre}
@@ -155,15 +155,15 @@ function InventarioInsumos() {
                   {/* Badge de Stock */}
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-md shrink-0 border ${
                     stockBajo 
-                      ? 'text-rose-450 bg-rose-500/10 border-rose-500/15 animate-pulse' 
-                      : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/15'
+                      ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' 
+                      : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
                   }`}>
                     {item.stockActual} {item.unidad}
                   </span>
                 </div>
 
                 {/* Info de Stock Mínimo y Alertas */}
-                <div className="mt-4 space-y-3">
+                <div className="mt-4 space-y-3 z-10">
                   <div className="flex justify-between items-center text-xs text-slate-400">
                     <span className="text-slate-500">Mínimo requerido:</span>
                     <span className="font-mono text-slate-350">{item.stockMinimo} {item.unidad}</span>
@@ -179,7 +179,7 @@ function InventarioInsumos() {
                       <div 
                         style={{ width: `${porcentaje}%` }}
                         className={`h-full rounded-full transition-all duration-500 ${
-                          stockBajo ? 'bg-rose-500' : 'bg-emerald-500'
+                          stockBajo ? 'bg-gradient-to-r from-rose-600 to-orange-500' : 'bg-gradient-to-r from-emerald-600 to-teal-400'
                         }`}
                       />
                     </div>
@@ -188,7 +188,7 @@ function InventarioInsumos() {
 
                 {/* Alerta inferior si el stock está por debajo del mínimo */}
                 {stockBajo && (
-                  <div className="mt-4 flex items-center gap-1.5 text-[10px] text-rose-400 font-bold bg-rose-500/5 p-2 rounded-lg border border-rose-500/10">
+                  <div className="mt-4 flex items-center gap-1.5 text-[10px] text-rose-400 font-bold bg-rose-500/5 p-2 rounded-lg border border-rose-500/10 z-10">
                     <AlertTriangle className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
                     <span>¡Alerta! Stock crítico en almacén.</span>
                   </div>
@@ -215,17 +215,17 @@ function InventarioInsumos() {
       {/* Panel Derecho: Ajuste de Kardex (1/3 de ancho) */}
       <div className="w-full lg:w-1/3 shrink-0">
         <div 
-          className="bg-slate-900/40 border border-slate-800 p-6 rounded-2xl h-fit transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:border-slate-700 hover:shadow-md"
+          className="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl p-6 h-fit shadow-2xl transition-all duration-300 hover:border-slate-700/80 hover:shadow-[0_0_20px_rgba(249,115,22,0.1)] bg-gradient-to-b from-slate-900/60 to-slate-900/40"
         >
-          <div className="flex items-center gap-3 border-b border-slate-800 pb-4 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/10">
-              <TrendingUp className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3 border-b border-slate-800/80 pb-4 mb-6">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500/10 to-transparent flex items-center justify-center border border-orange-500/10 shadow-inner">
+              <TrendingUp className="w-5 h-5 text-orange-500" />
             </div>
             <div>
               <h3 className="font-bold text-sm text-slate-200 uppercase tracking-wider">
                 Ajuste de Kardex
               </h3>
-              <p className="text-[10px] text-slate-500">Movimiento rápido de stock</p>
+              <p className="text-[10px] text-slate-500 font-medium">Movimiento rápido de stock</p>
             </div>
           </div>
 
@@ -238,7 +238,7 @@ function InventarioInsumos() {
               <select
                 value={insumoSeleccionadoId}
                 onChange={(e) => setInsumoSeleccionadoId(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors cursor-pointer"
+                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-all duration-200 cursor-pointer"
               >
                 <option value="" className="text-slate-500">-- Seleccionar Insumo --</option>
                 {insumos.map((ins) => (
@@ -261,7 +261,7 @@ function InventarioInsumos() {
                 value={cantidad}
                 onChange={(e) => setCantidad(e.target.value)}
                 placeholder="Ej. 5.5"
-                className="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-650 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-colors font-mono"
+                className="w-full bg-slate-950 border border-slate-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 placeholder-slate-650 focus:outline-none focus:ring-1 focus:ring-orange-500/30 transition-all duration-200 font-mono"
               />
             </div>
           </div>
@@ -271,7 +271,7 @@ function InventarioInsumos() {
             <button
               type="button"
               onClick={() => handleAjuste('ingreso')}
-              className="bg-emerald-650 hover:bg-emerald-550 text-white font-semibold py-2.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:shadow-lg hover:shadow-emerald-500/10 active:scale-[0.98]"
+              className="py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-600/90 to-teal-500/90 text-white shadow-[0_4px_12px_rgba(16,185,129,0.2)] hover:from-emerald-500 hover:to-teal-400 active:scale-95 transition-all duration-150 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Ingreso (+)
@@ -279,7 +279,7 @@ function InventarioInsumos() {
             <button
               type="button"
               onClick={() => handleAjuste('merma')}
-              className="bg-rose-650 hover:bg-rose-550 text-white font-semibold py-2.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 hover:shadow-lg hover:shadow-rose-500/10 active:scale-[0.98]"
+              className="py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 bg-gradient-to-r from-orange-600/90 to-amber-500/90 text-white shadow-[0_4px_12px_rgba(249,115,22,0.2)] hover:from-orange-500 hover:to-amber-400 active:scale-95 transition-all duration-150 cursor-pointer"
             >
               <Minus className="w-4 h-4" />
               Merma (-)
@@ -287,9 +287,9 @@ function InventarioInsumos() {
           </div>
 
           {/* Caja Informativa Premium de Ayuda */}
-          <div className="mt-6 border-t border-slate-800/60 pt-4 text-[10px] text-slate-500 leading-relaxed">
-            <span className="font-bold text-slate-400 block mb-1">Notas de Operación:</span>
-            Un <strong className="text-emerald-500">Ingreso</strong> suma directamente al stock actual de la materia prima. Una <strong className="text-rose-500">Merma</strong> descuenta del inventario (ej. insumos dañados, desechos o consumo interno).
+          <div className="mt-6 text-[10px] text-slate-500 leading-relaxed bg-slate-950/70 border border-slate-800/80 rounded-xl p-4">
+            <span className="font-bold text-slate-400 block mb-1 font-mono tracking-wider">AUDIT_LOG // NOTES:</span>
+            Un <code className="text-emerald-400 font-semibold font-mono bg-emerald-500/10 px-1.5 py-0.5 rounded">[INGRESO]</code> suma directamente al stock actual de la materia prima. Una <code className="text-orange-400 font-semibold font-mono bg-orange-500/10 px-1.5 py-0.5 rounded">[MERMA]</code> descuenta del inventario (ej. insumos dañados, desechos o consumo interno).
           </div>
         </div>
       </div>

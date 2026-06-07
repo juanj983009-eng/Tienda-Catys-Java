@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../config/api';
+import { ShoppingCart, X, Banknote, CreditCard, Smartphone, ChevronDown, Check } from 'lucide-react';
+import { API_BASE_URL, API_HOST_URL } from '../config/api';
 import SkeletonCard from './ui/SkeletonCard';
 
 function PuntoVenta() {
@@ -26,6 +27,24 @@ function PuntoVenta() {
 
   // Snapshot para el ticket de impresión
   const [ticketImpresion, setTicketImpresion] = useState(null);
+
+  // Control de apertura del Drawer en Móviles
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Estado para la animación reactiva del carrito
+  const [cartBadgeActive, setCartBadgeActive] = useState(false);
+
+  // Estados de control para Dropdowns personalizados
+  const [comprobanteOpen, setComprobanteOpen] = useState(false);
+  const [pagoOpen, setPagoOpen] = useState(false);
+  const [clienteOpen, setClienteOpen] = useState(false);
+
+  const triggerCartBadgeAnimation = () => {
+    setCartBadgeActive(true);
+    setTimeout(() => {
+      setCartBadgeActive(false);
+    }, 600);
+  };
 
   // Cargar productos al iniciar
   const cargarProductos = async () => {
@@ -101,6 +120,8 @@ function PuntoVenta() {
       return;
     }
 
+    triggerCartBadgeAnimation();
+
     setCarrito((prevCarrito) => {
       const existente = prevCarrito.find((item) => item.idProducto === producto.id);
       if (existente) {
@@ -129,6 +150,9 @@ function PuntoVenta() {
 
   // Modificar cantidad en la ticketera
   const cambiarCantidad = (idProducto, delta) => {
+    if (delta > 0) {
+      triggerCartBadgeAnimation();
+    }
     setCarrito((prevCarrito) => {
       return prevCarrito
         .map((item) => {
@@ -224,6 +248,7 @@ function PuntoVenta() {
           setClienteSeleccionado(null);
           setTipoComprobante('BOLETA');
           setMetodoPago('EFECTIVO');
+          setDrawerOpen(false); // Cerrar drawer en móvil
           cargarProductos(); // Recargar stock del catálogo
         }, 250);
       })
@@ -260,12 +285,316 @@ function PuntoVenta() {
   const descuento = clienteSeleccionado ? subtotal * clienteSeleccionado.porcentajeDescuento : 0;
   const totalFinal = subtotal - descuento;
 
+  // Helpers para Iconografía y Labels de Método de Pago
+  const getPagoIcon = (metodo) => {
+    switch (metodo) {
+      case 'EFECTIVO':
+        return <Banknote className="w-4 h-4 text-emerald-400 shrink-0" />;
+      case 'TARJETA_CREDITO':
+        return <CreditCard className="w-4 h-4 text-blue-400 shrink-0" />;
+      case 'YAPE_PLIN':
+        return <Smartphone className="w-4 h-4 text-fuchsia-400 shrink-0" />;
+      default:
+        return null;
+    }
+  };
+
+  const getPagoLabel = (metodo) => {
+    switch (metodo) {
+      case 'EFECTIVO':
+        return 'EFECTIVO';
+      case 'TARJETA_CREDITO':
+        return 'TARJETA';
+      case 'YAPE_PLIN':
+        return 'YAPE/PLIN';
+      default:
+        return metodo;
+    }
+  };
+
+  const getClienteLabel = () => {
+    return clienteSeleccionado ? clienteSeleccionado.nombre : 'Público General';
+  };
+
+  // Renderizador unificado para el Ticket de Venta (Desktop y Móvil)
+  const renderTicketContent = (onClose) => {
+    return (
+      <div className="flex flex-col h-full justify-between">
+        <div className="shrink-0 border-b border-slate-800 pb-3 flex justify-between items-center">
+          <h2 className="text-md font-bold text-slate-200 flex items-center gap-2">
+            <span className={`transition-transform duration-300 inline-block ${cartBadgeActive ? 'scale-125 text-orange-400 rotate-6' : ''}`}>🎫</span>
+            Ticket de Venta
+            {carrito.length > 0 && (
+              <span className={`ml-2 bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full transition-all duration-300 ${cartBadgeActive ? 'animate-bounce scale-110' : ''}`}>
+                {carrito.reduce((sum, item) => sum + item.cantidad, 0)}
+              </span>
+            )}
+          </h2>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg md:hidden transition-all duration-200 hover:bg-slate-800 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {/* CONTENEDOR CON SCROLL INDEPENDIENTE (Inputs + Carrito) */}
+        <div className="flex-1 overflow-y-auto pr-1 space-y-6 custom-scrollbar">
+          {/* Formulario del Comprobante (Campos Interactivos con Dropdowns Personalizados) */}
+          <div className="space-y-3 p-3 bg-slate-950/40 border border-slate-800 rounded-xl mt-4">
+            <div className="grid grid-cols-2 gap-2">
+              
+              {/* Tipo de Comprobante (Custom Dropdown) */}
+              <div className="relative" onBlur={() => setTimeout(() => setComprobanteOpen(false), 200)}>
+                <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Comprobante</label>
+                <button
+                  type="button"
+                  onClick={() => setComprobanteOpen(!comprobanteOpen)}
+                  className="w-full bg-slate-950/50 border border-slate-800 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <span>{tipoComprobante}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${comprobanteOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {comprobanteOpen && (
+                  <div className="absolute left-0 right-0 z-50 mt-1 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-2xl p-1 animate-[fadeIn_0.15s_ease-out]">
+                    {['BOLETA', 'FACTURA'].map((op) => (
+                      <div
+                        key={op}
+                        onClick={() => {
+                          setTipoComprobante(op);
+                          setComprobanteOpen(false);
+                        }}
+                        className="px-2.5 py-1.5 text-xs text-slate-350 hover:bg-orange-500/10 hover:text-orange-400 transition-colors rounded-lg cursor-pointer flex items-center justify-between"
+                      >
+                        <span>{op}</span>
+                        {tipoComprobante === op && <Check className="w-3.5 h-3.5 text-orange-500" />}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Método de Pago (Custom Dropdown con Lucide Icons) */}
+              <div className="relative" onBlur={() => setTimeout(() => setPagoOpen(false), 200)}>
+                <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Pago</label>
+                <button
+                  type="button"
+                  onClick={() => setPagoOpen(!pagoOpen)}
+                  className="w-full bg-slate-950/50 border border-slate-800 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    {getPagoIcon(metodoPago)}
+                    <span>{getPagoLabel(metodoPago)}</span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${pagoOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {pagoOpen && (
+                  <div className="absolute left-0 right-0 z-50 mt-1 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-2xl p-1 animate-[fadeIn_0.15s_ease-out]">
+                    {[
+                      { value: 'EFECTIVO', label: 'EFECTIVO' },
+                      { value: 'TARJETA_CREDITO', label: 'TARJETA' },
+                      { value: 'YAPE_PLIN', label: 'YAPE/PLIN' }
+                    ].map((op) => (
+                      <div
+                        key={op.value}
+                        onClick={() => {
+                          setMetodoPago(op.value);
+                          setPagoOpen(false);
+                        }}
+                        className="px-2.5 py-1.5 text-xs text-slate-350 hover:bg-orange-500/10 hover:text-orange-400 transition-colors rounded-lg cursor-pointer flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2">
+                          {getPagoIcon(op.value)}
+                          <span>{op.label}</span>
+                        </div>
+                        {metodoPago === op.value && <Check className="w-3.5 h-3.5 text-orange-500" />}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {/* Nombre Cliente Selector (Custom Dropdown) */}
+              <div className="relative" onBlur={() => setTimeout(() => setClienteOpen(false), 200)}>
+                <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Cliente</label>
+                <button
+                  type="button"
+                  onClick={() => setClienteOpen(!clienteOpen)}
+                  className="w-full bg-slate-950/50 border border-slate-800 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <span className="truncate pr-1">{getClienteLabel()}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${clienteOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {clienteOpen && (
+                  <div className="absolute left-0 right-0 z-50 mt-1 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-2xl p-1 animate-[fadeIn_0.15s_ease-out] max-h-48 overflow-y-auto custom-scrollbar">
+                    <div
+                      onClick={() => {
+                        setClienteSeleccionado(null);
+                        setNombreCliente('Público General');
+                        setDocCliente('');
+                        setClienteOpen(false);
+                      }}
+                      className="px-2.5 py-1.5 text-xs text-slate-350 hover:bg-orange-500/10 hover:text-orange-400 transition-colors rounded-lg cursor-pointer flex items-center justify-between"
+                    >
+                      <span>Público General</span>
+                      {!clienteSeleccionado && <Check className="w-3.5 h-3.5 text-orange-500" />}
+                    </div>
+                    {clientesVIP.map((cli) => (
+                      <div
+                        key={cli.id}
+                        onClick={() => {
+                          setClienteSeleccionado(cli);
+                          setNombreCliente(cli.nombre);
+                          setDocCliente(cli.dni);
+                          setClienteOpen(false);
+                        }}
+                        className="px-2.5 py-1.5 text-xs text-slate-350 hover:bg-orange-500/10 hover:text-orange-400 transition-colors rounded-lg cursor-pointer flex items-center justify-between"
+                      >
+                        <span>{cli.nombre}</span>
+                        {clienteSeleccionado?.id === cli.id && <Check className="w-3.5 h-3.5 text-orange-500" />}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Documento Cliente (DNI/RUC) */}
+              <div>
+                <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">DNI / RUC</label>
+                <input
+                  type="text"
+                  placeholder="Opcional"
+                  value={docCliente}
+                  onChange={(e) => setDocCliente(e.target.value)}
+                  className="w-full bg-slate-950/50 border border-slate-800 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all placeholder-slate-650"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Lista del Carrito */}
+          <div className="space-y-2">
+            {carrito.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[350px] p-6 text-center select-none">
+                {/* Halo ring + icon container */}
+                <div className="relative mb-6">
+                  {/* Pulsing outer ring */}
+                  <div className="absolute inset-0 rounded-full bg-orange-500/5 animate-pulse scale-150 blur-md" />
+                  {/* Subtle inner ring */}
+                  <div className="w-20 h-20 rounded-2xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-center shadow-inner relative z-10">
+                    <ShoppingCart className="w-8 h-8 text-slate-600/60 animate-[pulse_3s_ease-in-out_infinite]" />
+                  </div>
+                </div>
+
+                {/* Text block */}
+                <p className="text-base font-semibold text-slate-300 mb-1.5 tracking-wide">
+                  Terminal de Venta Lista
+                </p>
+                <p className="text-sm text-slate-500 max-w-[220px] mx-auto leading-relaxed">
+                  Selecciona productos del catálogo para estructurar una nueva comanda.
+                </p>
+
+                {/* Decorative divider */}
+                <div className="mt-6 flex items-center gap-2 opacity-30">
+                  <div className="w-8 h-px bg-slate-600" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-orange-500/50" />
+                  <div className="w-8 h-px bg-slate-600" />
+                </div>
+              </div>
+            ) : (
+              carrito.map((item) => (
+                <div
+                  key={item.idProducto}
+                  className="bg-slate-800/40 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between animate-[fadeIn_0.25s_ease-out]"
+                >
+                  <div className="flex-1 min-w-0 pr-2">
+                    <h4 className="font-semibold text-slate-350 text-xs truncate">
+                      {item.nombre}
+                    </h4>
+                    <span className="text-slate-500 text-[10px]">
+                      S/ {item.precioUnitario.toFixed(2)} c/u
+                    </span>
+                  </div>
+
+                  {/* Controles de Cantidad */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => cambiarCantidad(item.idProducto, -1)}
+                      className="w-5 h-5 rounded bg-slate-850 hover:bg-slate-750 text-slate-400 hover:text-slate-200 flex items-center justify-center text-xs transition cursor-pointer"
+                    >
+                      -
+                    </button>
+                    <span className="text-slate-200 font-bold text-xs w-4 text-center">
+                      {item.cantidad}
+                    </span>
+                    <button
+                      onClick={() => cambiarCantidad(item.idProducto, 1)}
+                      className="w-5 h-5 rounded bg-slate-850 hover:bg-slate-750 text-slate-400 hover:text-slate-200 flex items-center justify-center text-xs transition cursor-pointer"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  {/* Subtotal Ítem */}
+                  <span className="font-semibold text-slate-200 text-xs w-16 text-right shrink-0">
+                    S/ {(item.cantidad * item.precioUnitario).toFixed(2)}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Sección de Pago (Fijo abajo, fuera de scroll) */}
+        <div className="shrink-0 border-t border-slate-800 pt-4 mt-4 space-y-4">
+          {/* Desglose de Precios */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-450">Subtotal</span>
+              <span className="text-slate-300 font-medium">S/ {subtotal.toFixed(2)}</span>
+            </div>
+            {clienteSeleccionado && (
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-red-400 font-medium">Descuento VIP (5%)</span>
+                <span className="text-red-400 font-medium">-S/ {descuento.toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center border-t border-slate-850 pt-1.5">
+              <span className="text-slate-450 text-sm font-semibold">Total a Pagar</span>
+              <span className="text-orange-400 text-xl font-bold tracking-tight">
+                S/ {totalFinal.toFixed(2)}
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              handleConfirmarVenta();
+              if (onClose) onClose();
+            }}
+            disabled={carrito.length === 0}
+            className={`w-full py-3 font-bold text-sm rounded-xl uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-1.5 ${
+              carrito.length === 0
+                ? 'bg-slate-800/40 text-slate-500 border border-slate-800/80 cursor-not-allowed font-semibold shadow-none'
+                : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/15 active:scale-95 cursor-pointer'
+            }`}
+          >
+            Confirmar Pedido &amp; Imprimir
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="h-[calc(100vh-80px)] overflow-hidden">
       {/* 1. LAYOUT DE PANTALLA (Oculto al imprimir) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full print:hidden overflow-hidden">
+      <div className="flex flex-col md:flex-row gap-6 h-full print:hidden overflow-hidden">
         {/* Alerta flotante */}
-        {/* Premium Toast Notification */}
         {notificacion.visible && (
           <div className={`fixed top-4 right-4 z-50 px-5 py-4 rounded-2xl shadow-2xl backdrop-blur-md border flex items-center gap-3.5 transition-all duration-500 ease-out transform translate-y-0 opacity-100 ${
             notificacion.tipo === 'error'
@@ -289,14 +618,14 @@ function PuntoVenta() {
         )}
 
         {/* Columna Izquierda: Catálogo de Productos */}
-        <div className="lg:col-span-2 flex flex-col h-full bg-slate-900/40 border border-slate-800 rounded-2xl p-5 overflow-hidden">
+        <div className="w-full md:w-2/3 flex flex-col h-full bg-slate-900/40 border border-slate-800 rounded-2xl p-5 overflow-hidden">
           {/* Categorías */}
           <div className="flex gap-2 pb-4 overflow-x-auto shrink-0">
             {categorias.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategoriaActiva(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap ${
+                className={`px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
                   categoriaActiva === cat
                     ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
                     : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-750'
@@ -310,7 +639,7 @@ function PuntoVenta() {
           {/* Productos Grid */}
           <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-800/80 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-700 pr-1 pb-4">
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 {[...Array(6)].map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
@@ -320,7 +649,7 @@ function PuntoVenta() {
                 <span>Error: {error}</span>
                 <button
                   onClick={cargarProductos}
-                  className="px-4 py-2 bg-slate-800 text-slate-200 rounded-xl hover:bg-slate-700 transition"
+                  className="px-4 py-2 bg-slate-800 text-slate-200 rounded-xl hover:bg-slate-700 transition cursor-pointer"
                 >
                   Reintentar
                 </button>
@@ -330,7 +659,7 @@ function PuntoVenta() {
                 No hay productos disponibles en esta categoría.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 {productosFiltrados.map((p) => {
                   const esStockBajo = p.stock <= 5;
                   const esSinStock = p.stock === 0;
@@ -339,7 +668,7 @@ function PuntoVenta() {
                   return (
                     <div
                       key={p.id}
-                      className="bg-slate-800/65 border border-slate-750/70 rounded-2xl p-4 flex flex-col justify-between transform hover:scale-[1.02] hover:border-orange-500/60 hover:shadow-xl hover:shadow-orange-500/5 transition-all duration-300 relative group"
+                      className="bg-slate-800/65 border border-slate-750/70 rounded-2xl p-4 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(249,115,22,0.15)] hover:border-orange-500/40 relative group"
                     >
                       {/* Badge parpadeante si el stock es bajo (< 5 y > 0) */}
                       {mostrarAlertaStock && (
@@ -352,7 +681,7 @@ function PuntoVenta() {
                         {p.imagenUrl ? (
                           <div className="relative mb-4 shrink-0 overflow-hidden rounded-xl">
                              <img 
-                               src={`http://localhost:8089${p.imagenUrl}`} 
+                               src={`${API_HOST_URL}${p.imagenUrl}`} 
                                alt={p.nombre}
                                onError={(e) => {
                                  e.target.style.display = 'none';
@@ -402,10 +731,10 @@ function PuntoVenta() {
                         <button
                           onClick={() => agregarAlCarrito(p)}
                           disabled={esSinStock}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer active:scale-95 transition-transform ${
                             esSinStock
                               ? 'bg-slate-900 text-slate-655 cursor-not-allowed'
-                              : 'bg-orange-500 hover:bg-orange-600 text-white active:scale-95 shadow-md shadow-orange-500/10'
+                              : 'bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/10'
                           }`}
                         >
                           {esSinStock ? 'Agotado' : 'Agregar'}
@@ -419,165 +748,48 @@ function PuntoVenta() {
           </div>
         </div>
 
-        {/* Columna Derecha: Formulario y Ticket de Venta */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-[calc(100vh-120px)] flex flex-col justify-between">
-          <div className="shrink-0 border-b border-slate-800 pb-3">
-            <h2 className="text-md font-bold text-slate-200 flex items-center gap-2">
-              🎫 Ticket de Venta
-            </h2>
-          </div>
-
-          {/* CONTENEDOR CON SCROLL INDEPENDIENTE (Inputs + Carrito) */}
-          <div className="flex-1 overflow-y-auto pr-1 space-y-6">
-            {/* Formulario del Comprobante (Campos Interactivos) */}
-            <div className="space-y-3 p-3 bg-slate-900/60 border border-slate-800 rounded-xl mt-4">
-              <div className="grid grid-cols-2 gap-2">
-                {/* Tipo de Comprobante */}
-                <div>
-                  <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Comprobante</label>
-                  <select
-                    value={tipoComprobante}
-                    onChange={(e) => setTipoComprobante(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-orange-500 outline-none"
-                  >
-                    <option value="BOLETA">BOLETA</option>
-                    <option value="FACTURA">FACTURA</option>
-                  </select>
-                </div>
-
-                {/* Método de Pago */}
-                <div>
-                  <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Pago</label>
-                  <select
-                    value={metodoPago}
-                    onChange={(e) => setMetodoPago(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-orange-500 outline-none"
-                  >
-                    <option value="EFECTIVO">💵 EFECTIVO</option>
-                    <option value="TARJETA_CREDITO">💳 TARJETA</option>
-                    <option value="YAPE_PLIN">📱 YAPE/PLIN</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                {/* Nombre Cliente Selector */}
-                <div>
-                  <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Cliente</label>
-                  <select
-                    value={clienteSeleccionado ? clienteSeleccionado.id : ''}
-                    onChange={handleSelectCliente}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  >
-                    <option value="">Público General (Sin Descuento)</option>
-                    {clientesVIP.map((cli) => (
-                      <option key={cli.id} value={cli.id}>
-                        {cli.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Documento Cliente (DNI/RUC) */}
-                <div>
-                  <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">DNI / RUC</label>
-                  <input
-                    type="text"
-                    placeholder="Opcional"
-                    value={docCliente}
-                    onChange={(e) => setDocCliente(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-orange-500 outline-none placeholder-slate-600"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Lista del Carrito */}
-            <div className="space-y-2">
-              {carrito.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-40 text-slate-650 text-xs gap-2 border border-dashed border-slate-800 rounded-xl">
-                  <span className="text-2xl">🎫</span>
-                  <span>El carrito está vacío.</span>
-                </div>
-              ) : (
-                carrito.map((item) => (
-                  <div
-                    key={item.idProducto}
-                    className="bg-slate-800/40 border border-slate-800/80 rounded-xl p-3 flex items-center justify-between"
-                  >
-                    <div className="flex-1 min-w-0 pr-2">
-                      <h4 className="font-semibold text-slate-350 text-xs truncate">
-                        {item.nombre}
-                      </h4>
-                      <span className="text-slate-500 text-[10px]">
-                        S/ {item.precioUnitario.toFixed(2)} c/u
-                      </span>
-                    </div>
-
-                    {/* Controles de Cantidad */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => cambiarCantidad(item.idProducto, -1)}
-                        className="w-5 h-5 rounded bg-slate-850 hover:bg-slate-750 text-slate-400 hover:text-slate-200 flex items-center justify-center text-xs transition"
-                      >
-                        -
-                      </button>
-                      <span className="text-slate-200 font-bold text-xs w-4 text-center">
-                        {item.cantidad}
-                      </span>
-                      <button
-                        onClick={() => cambiarCantidad(item.idProducto, 1)}
-                        className="w-5 h-5 rounded bg-slate-850 hover:bg-slate-750 text-slate-400 hover:text-slate-200 flex items-center justify-center text-xs transition"
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    {/* Subtotal Ítem */}
-                    <span className="font-semibold text-slate-200 text-xs w-16 text-right shrink-0">
-                      S/ {(item.cantidad * item.precioUnitario).toFixed(2)}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Sección de Pago (Fijo abajo, fuera de scroll) */}
-          <div className="shrink-0 border-t border-slate-800 pt-4 mt-4 space-y-4">
-            {/* Desglose de Precios */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-450">Subtotal</span>
-                <span className="text-slate-300 font-medium">S/ {subtotal.toFixed(2)}</span>
-              </div>
-              {clienteSeleccionado && (
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-red-400 font-medium">Descuento VIP (5%)</span>
-                  <span className="text-red-400 font-medium">-S/ {descuento.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between items-center border-t border-slate-850 pt-1.5">
-                <span className="text-slate-450 text-sm font-semibold">Total a Pagar</span>
-                <span className="text-orange-400 text-xl font-bold tracking-tight">
-                  S/ {totalFinal.toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={handleConfirmarVenta}
-              disabled={carrito.length === 0}
-              className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-800 disabled:text-slate-655 text-white font-bold text-sm rounded-xl transition tracking-wider uppercase active:scale-95 shadow-lg shadow-orange-500/10"
-            >
-              Confirmar Pedido &amp; Imprimir
-            </button>
-          </div>
+        {/* Columna Derecha: Formulario y Ticket de Venta (Visible en desktop, oculta en móvil) */}
+        <div className="hidden md:flex md:w-1/3 bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-4 h-[calc(100vh-120px)] flex flex-col justify-between">
+          {renderTicketContent()}
         </div>
       </div>
 
-      {/* Estilos de Impresión Térmica POS */}
+      {/* Botón flotante para móviles (FAB) */}
+      <button
+        onClick={() => setDrawerOpen(true)}
+        className="md:hidden fixed bottom-4 right-4 z-40 bg-gradient-to-r from-orange-500 to-amber-500 text-white p-4 rounded-full shadow-2xl shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center border border-orange-400/20 cursor-pointer"
+      >
+        <ShoppingCart className={`w-6 h-6 transition-transform duration-300 ${cartBadgeActive ? 'scale-125 text-amber-300 rotate-12' : 'animate-pulse'}`} />
+        {carrito.reduce((sum, item) => sum + item.cantidad, 0) > 0 && (
+          <span className={`absolute -top-1 -right-1 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow border border-slate-900 transition-all duration-300 ${
+            cartBadgeActive 
+              ? 'bg-orange-500 scale-125 animate-bounce' 
+              : 'bg-red-500'
+          }`}>
+            {carrito.reduce((sum, item) => sum + item.cantidad, 0)}
+          </span>
+        )}
+      </button>
+
+      {/* Mobile Drawer (visible only on mobile) */}
+      {drawerOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex justify-end">
+          <div className="w-full max-w-lg bg-slate-900/40 backdrop-blur-md h-full flex flex-col p-6 shadow-2xl relative border-l border-slate-800 overflow-hidden animate-[slideLeft_0.3s_ease-out]">
+            {renderTicketContent(() => setDrawerOpen(false))}
+          </div>
+        </div>
+      )}
+
+      {/* Estilos de Impresión Térmica POS y Scrollbar Reset */}
       <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 0px; /* Hides scrollbar completely */
+          background: transparent;
+        }
+        .custom-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
         @media print {
           /* Forzar fondo blanco y texto negro, eliminando colores de administración */
           body, html, #root {

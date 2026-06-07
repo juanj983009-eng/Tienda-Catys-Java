@@ -51,19 +51,19 @@ function ControlMesas({ setVistaActual }) {
     <div className="h-full flex flex-col overflow-hidden">
       {/* 1. MÁSCARA SUPERIOR DE MÉTRICAS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 shrink-0">
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-4 flex flex-col">
+        <div className="bg-gradient-to-b from-slate-500/5 to-slate-900/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm">
           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Salón</span>
           <span className="text-xl font-bold text-slate-200 mt-1">{totalMesas} Mesas</span>
         </div>
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-4 flex flex-col">
+        <div className="bg-gradient-to-b from-emerald-500/5 to-slate-900/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm">
           <span className="text-[10px] text-emerald-500/80 font-bold uppercase tracking-wider">Disponibles</span>
           <span className="text-xl font-bold text-emerald-400 mt-1">{disponibles} Libres</span>
         </div>
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-4 flex flex-col">
+        <div className="bg-gradient-to-b from-orange-500/5 to-slate-900/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm">
           <span className="text-[10px] text-red-500/80 font-bold uppercase tracking-wider">Ocupadas</span>
           <span className="text-xl font-bold text-red-400 mt-1">{ocupadas} Mesas</span>
         </div>
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-4 flex flex-col">
+        <div className="bg-gradient-to-b from-amber-500/5 to-slate-900/40 border border-slate-800/80 rounded-2xl p-4 flex flex-col shadow-sm">
           <span className="text-[10px] text-amber-500/80 font-bold uppercase tracking-wider">Pidiendo Cuenta</span>
           <span className="text-xl font-bold text-amber-400 mt-1">{cuentas} Checkouts</span>
         </div>
@@ -90,7 +90,7 @@ function ControlMesas({ setVistaActual }) {
         {/* Acceso rápido a comanda */}
         <button
           onClick={() => setVistaActual('pos')}
-          className="px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-bold text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap hover:text-amber-500 group shrink-0"
+          className="px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-bold text-slate-300 transition-all flex items-center gap-1.5 whitespace-nowrap hover:text-amber-500 group shrink-0 active:scale-95 transition-transform"
         >
           Nueva Venta
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -105,14 +105,22 @@ function ControlMesas({ setVistaActual }) {
             const esOcupada = mesa.estado === 'ocupada';
             const esCuenta = mesa.estado === 'cuenta';
 
+            // Clasificación dinámica de estilos de tarjeta
+            let cardClasses = "bg-slate-900/40 backdrop-blur-md border border-slate-800 rounded-2xl p-5 transition-all duration-300 flex flex-col justify-between h-36 cursor-pointer relative group overflow-hidden";
+            if (esDisponible) {
+              cardClasses += " hover:border-emerald-500/30 hover:shadow-[0_0_15px_rgba(16,185,129,0.05)]";
+            } else if (esOcupada || esCuenta) {
+              cardClasses += " hover:-translate-y-1 hover:border-orange-500/40 hover:shadow-[0_0_20px_rgba(249,115,22,0.12)]";
+            }
+
             return (
               <div
                 key={mesa.id}
                 onClick={() => cambiarEstadoMesa(mesa.id)}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between h-36 transition-all duration-300 ease-out transform hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/5 cursor-pointer relative group"
+                className={cardClasses}
               >
                 {/* Cabecera Tarjeta: Número e Icono Capacidad */}
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start z-10">
                   <div>
                     <span className="font-bold text-slate-100 text-sm tracking-wide block">{mesa.numero}</span>
                     <span className="text-[10px] text-slate-500 font-semibold tracking-widest uppercase block mt-0.5">
@@ -126,30 +134,34 @@ function ControlMesas({ setVistaActual }) {
                 </div>
 
                 {/* Pie Tarjeta: Badges Operativos de Estado */}
-                <div className="mt-4">
+                <div className="mt-4 z-10">
                   {esDisponible && (
                     <span className="inline-flex items-center justify-center px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/15 rounded-md">
                       Disponible
                     </span>
                   )}
                   {esOcupada && (
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1 text-[9px] text-slate-400 font-medium">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[9px] text-slate-400 font-medium">
                         <Clock className="w-3 h-3 text-red-400" />
                         <span>Hace {mesa.tiempo}</span>
+                        <span className="flex h-2 w-2 relative ml-0.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                        </span>
                       </div>
-                      <span className="inline-flex items-center justify-center px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/15 rounded-md">
+                      <span className="inline-flex items-center justify-center px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-orange-500 bg-slate-950 border border-slate-800/80 rounded-full shadow-inner">
                         Consumo: S/ {mesa.consumo.toFixed(2)}
                       </span>
                     </div>
                   )}
                   {esCuenta && (
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1 text-[9px] text-slate-400 font-medium">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[9px] text-slate-400 font-medium">
                         <Clock className="w-3 h-3 text-amber-400 animate-pulse" />
                         <span>Solicitado</span>
                       </div>
-                      <span className="inline-flex items-center justify-center px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border border-amber-500/15 rounded-md animate-pulse">
+                      <span className="inline-flex items-center justify-center px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-amber-400 bg-slate-950 border border-slate-800 rounded-full shadow-inner animate-pulse">
                         Cuenta: S/ {mesa.consumo.toFixed(2)}
                       </span>
                     </div>
@@ -157,7 +169,9 @@ function ControlMesas({ setVistaActual }) {
                 </div>
 
                 {/* Overlay de Ayuda visual rápida (Hover) */}
-                <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 rounded-2xl pointer-events-none transition-opacity duration-300" />
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 rounded-2xl pointer-events-none transition-opacity duration-300 ${
+                  esDisponible ? 'bg-emerald-500/5' : 'bg-orange-500/5'
+                }`} />
               </div>
             );
           })}
