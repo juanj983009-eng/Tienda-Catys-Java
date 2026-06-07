@@ -86,7 +86,7 @@ function ComandaCard({ pedido, evaporandoId, onAvanzar, variante }) {
   const esUrgente = urgente(pedido.haceMinutos);
 
   const cardBase =
-    'bg-slate-900/60 backdrop-blur-md border rounded-xl p-4 shadow-lg flex flex-col justify-between gap-3 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden';
+    'flex flex-col justify-between h-auto min-h-[250px] bg-slate-900/60 backdrop-blur-md border rounded-xl p-5 shadow-lg mb-4 transition-all duration-300 hover:-translate-y-1 relative';
 
   const borderClass = {
     cola:       esUrgente ? 'border-red-500/30 hover:border-red-500/50 shadow-red-500/5' : 'border-slate-800 hover:border-orange-500/30',
@@ -112,7 +112,7 @@ function ComandaCard({ pedido, evaporandoId, onAvanzar, variante }) {
       }`} />
 
       {/* Cabecera */}
-      <div className="flex justify-between items-start pl-1">
+      <div className="flex justify-between items-start mb-3 pl-1">
         <div>
           <span className={`text-[10px] font-extrabold tracking-widest uppercase ${idColor}`}>
             Orden #{pedido.id}
@@ -127,25 +127,27 @@ function ComandaCard({ pedido, evaporandoId, onAvanzar, variante }) {
 
       {/* Badge URGENTE */}
       {esUrgente && (
-        <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 rounded-lg px-2.5 py-1 w-fit animate-pulse pl-1 ml-1">
+        <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/20 rounded-lg px-2.5 py-1 w-fit animate-pulse pl-1 ml-1 mb-3">
           <AlertTriangle className="w-3 h-3 text-red-400" />
           <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">URGENTE</span>
         </div>
       )}
 
       {/* Ítems de la comanda */}
-      <div className="border-t border-slate-800/70 pt-2.5 pl-1">
-        <ul className="space-y-1.5">
+      <div className="flex-1 w-full mb-5 border-t border-slate-800/70 pt-2.5 pl-1 text-slate-300">
+        <ul className="space-y-2">
           {pedido.items.map((item, i) => (
-            <li key={i} className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <span className={`w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center shrink-0 ${
-                variante === 'listo'
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'bg-orange-500/10 text-orange-400 border border-orange-500/15'
-              }`}>
-                {item.cant}
+            <li key={i} className="text-sm font-semibold text-slate-200 flex justify-between items-center gap-2">
+              <span className="flex items-center gap-2">
+                <span className={`w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center shrink-0 ${
+                  variante === 'listo'
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    : 'bg-orange-500/10 text-orange-400 border border-orange-500/15'
+                }`}>
+                  {item.cant}
+                </span>
+                <span>{item.nombre}</span>
               </span>
-              {item.nombre}
             </li>
           ))}
         </ul>
@@ -155,7 +157,7 @@ function ComandaCard({ pedido, evaporandoId, onAvanzar, variante }) {
       {variante === 'cola' && (
         <button
           onClick={() => onAvanzar(pedido.id, pedido.estado)}
-          className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold rounded-xl active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5 uppercase tracking-wider shadow-[0_4px_12px_rgba(249,115,22,0.2)] cursor-pointer"
+          className="flex-shrink-0 w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold rounded-lg active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5 uppercase tracking-wider shadow-[0_4px_12px_rgba(249,115,22,0.2)] cursor-pointer mt-2"
         >
           <Play className="w-3.5 h-3.5" />
           Comenzar Preparación
@@ -165,7 +167,7 @@ function ComandaCard({ pedido, evaporandoId, onAvanzar, variante }) {
       {variante === 'preparacion' && (
         <button
           onClick={() => onAvanzar(pedido.id, pedido.estado)}
-          className="w-full py-2.5 bg-orange-500/15 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30 hover:border-transparent text-xs font-bold rounded-xl active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5 uppercase tracking-wider cursor-pointer"
+          className="flex-shrink-0 w-full py-2.5 bg-orange-500/15 hover:bg-orange-500 text-orange-400 hover:text-white border border-orange-500/30 hover:border-transparent text-xs font-bold rounded-lg active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5 uppercase tracking-wider cursor-pointer mt-2"
         >
           <Check className="w-3.5 h-3.5" />
           Marcar como Listo
@@ -175,7 +177,7 @@ function ComandaCard({ pedido, evaporandoId, onAvanzar, variante }) {
       {variante === 'listo' && (
         <button
           onClick={() => onAvanzar(pedido.id, pedido.estado)}
-          className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold rounded-xl active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5 uppercase tracking-wider shadow-[0_4px_12px_rgba(16,185,129,0.15)] cursor-pointer"
+          className="flex-shrink-0 w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white text-xs font-semibold rounded-lg active:scale-95 transition-all duration-200 flex items-center justify-center gap-1.5 uppercase tracking-wider shadow-[0_4px_12px_rgba(16,185,129,0.15)] cursor-pointer mt-2"
         >
           <CheckCircle className="w-3.5 h-3.5" />
           Entregar / Despachar
@@ -321,7 +323,7 @@ function PedidosCocina() {
       </div>
 
       {/* ── Kanban Board ─────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 overflow-y-auto pr-1 pb-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 lg:overflow-hidden overflow-y-auto pr-1 pb-2">
 
         {/* ── COLUMNA 1: RECIBIDOS ──────────────────────────────────────────── */}
         <div className="bg-slate-900/40 border border-orange-500/10 rounded-2xl p-5 flex flex-col h-[calc(100vh-220px)] overflow-hidden">
@@ -336,7 +338,7 @@ function PedidosCocina() {
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700/50 hover:[&::-webkit-scrollbar-thumb]:bg-orange-500/40 [&::-webkit-scrollbar-thumb]:rounded-full">
             {cola.length === 0
               ? <EmptyColum icon={Package2} label="Sin pedidos en cola" color="text-amber-500" />
               : cola.map(pedido => (
@@ -367,7 +369,7 @@ function PedidosCocina() {
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700/50 hover:[&::-webkit-scrollbar-thumb]:bg-orange-500/40 [&::-webkit-scrollbar-thumb]:rounded-full">
             {preparacion.length === 0
               ? <EmptyColum icon={ChefHat} label="Sin platos en preparación" color="text-orange-500" />
               : preparacion.map(pedido => (
@@ -396,7 +398,7 @@ function PedidosCocina() {
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-slate-800 [&::-webkit-scrollbar-thumb]:rounded-full flex flex-col">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700/50 hover:[&::-webkit-scrollbar-thumb]:bg-orange-500/40 [&::-webkit-scrollbar-thumb]:rounded-full flex flex-col">
             {listos.length === 0 ? (
               <>
                 <EmptyColum icon={UtensilsCrossed} label="Ningún pedido por entregar" color="text-emerald-500" />

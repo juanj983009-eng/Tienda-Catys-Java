@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Clock, DollarSign, ArrowRight, Layers } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 function ControlMesas({ setVistaActual }) {
   const [filtroZona, setFiltroZona] = useState('TODAS');
@@ -15,24 +16,50 @@ function ControlMesas({ setVistaActual }) {
     { id: 9, numero: "Mesa T3", capacidad: 2, estado: "disponible", zona: "Terraza" }
   ]);
 
+  const cargarMesas = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/mesas`);
+      if (!res.ok) throw new Error('Error al obtener mesas');
+      const data = await res.json();
+      setMesas(data);
+    } catch (err) {
+      console.error("Error al cargar mesas:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    cargarMesas();
+    const interval = setInterval(cargarMesas, 5000);
+    return () => clearInterval(interval);
+  }, [cargarMesas]);
+
   // Cicla el estado de la mesa: Disponible -> Ocupada -> Cuenta -> Disponible
-  const cambiarEstadoMesa = (id) => {
-    setMesas((prevMesas) =>
-      prevMesas.map((m) => {
-        if (m.id === id) {
-          if (m.estado === 'disponible') {
-            return { ...m, estado: 'ocupada', tiempo: '5 min', consumo: 35.00 };
-          }
-          if (m.estado === 'ocupada') {
-            return { ...m, estado: 'cuenta', tiempo: '15 min' };
-          }
-          if (m.estado === 'cuenta') {
-            return { ...m, estado: 'disponible', tiempo: undefined, consumo: undefined };
-          }
-        }
-        return m;
-      })
-    );
+  const cambiarEstadoMesa = async (id) => {
+    const m = mesas.find(x => x.id === id);
+    if (!m) return;
+
+    let nuevoEstado = 'disponible';
+    if (m.estado === 'disponible') {
+      nuevoEstado = 'ocupada';
+    } else if (m.estado === 'ocupada') {
+      nuevoEstado = 'cuenta';
+    } else if (m.estado === 'cuenta') {
+      nuevoEstado = 'disponible';
+    }
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/mesas/${id}/estado`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      });
+      if (!res.ok) throw new Error('Error al actualizar el estado de la mesa');
+      const mesaActualizada = await res.json();
+      
+      setMesas(prev => prev.map(item => item.id === id ? mesaActualizada : item));
+    } catch (err) {
+      console.error("Error al cambiar estado de la mesa:", err);
+    }
   };
 
   const zonas = ['TODAS', 'Salón Principal', 'Terraza', 'Barra'];
@@ -151,7 +178,7 @@ function ControlMesas({ setVistaActual }) {
                         </span>
                       </div>
                       <span className="inline-flex items-center justify-center px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-orange-500 bg-slate-950 border border-slate-800/80 rounded-full shadow-inner">
-                        Consumo: S/ {mesa.consumo.toFixed(2)}
+                        Consumo: S/ {Number(mesa.consumo || 0).toFixed(2)}
                       </span>
                     </div>
                   )}
@@ -162,7 +189,7 @@ function ControlMesas({ setVistaActual }) {
                         <span>Solicitado</span>
                       </div>
                       <span className="inline-flex items-center justify-center px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-amber-400 bg-slate-950 border border-slate-800 rounded-full shadow-inner animate-pulse">
-                        Cuenta: S/ {mesa.consumo.toFixed(2)}
+                        Cuenta: S/ {Number(mesa.consumo || 0).toFixed(2)}
                       </span>
                     </div>
                   )}

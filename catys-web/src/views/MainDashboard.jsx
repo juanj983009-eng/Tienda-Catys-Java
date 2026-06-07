@@ -9,14 +9,24 @@ function MainDashboard() {
     mesas: { ocupadas: 0, disponibles: 0 },
     alertasStock: []
   });
+  const [mesas, setMesas] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const cargarMetricas = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/dashboard/resumen`);
-      if (!res.ok) throw new Error('Error al obtener métricas');
-      const data = await res.json();
-      setEstadoEnVivo(data);
+      const [resResumen, resMesas] = await Promise.all([
+        fetch(`${API_BASE_URL}/dashboard/resumen`),
+        fetch(`${API_BASE_URL}/mesas`)
+      ]);
+      
+      if (!resResumen.ok) throw new Error('Error al obtener métricas');
+      if (!resMesas.ok) throw new Error('Error al obtener mesas');
+      
+      const dataResumen = await resResumen.json();
+      const dataMesas = await resMesas.json();
+      
+      setEstadoEnVivo(dataResumen);
+      setMesas(dataMesas);
     } catch (err) {
       console.error("Error al cargar métricas del dashboard:", err);
     } finally {
@@ -30,12 +40,16 @@ function MainDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const totalMesas = estadoEnVivo.mesas.ocupadas + estadoEnVivo.mesas.disponibles;
-  const ocupacionPorcentaje = totalMesas > 0 
-    ? Math.round((estadoEnVivo.mesas.ocupadas / totalMesas) * 100) 
+  const safeMesas = Array.isArray(mesas) ? mesas : [];
+  const ocupadasCount = safeMesas.filter(m => m && m.estado === 'ocupada').length;
+  const checkoutsCount = safeMesas.filter(m => m && m.estado === 'cuenta').length;
+  const disponiblesCount = safeMesas.filter(m => m && m.estado === 'disponible').length;
+  const totalMesasCount = safeMesas.length;
+  const ocupacionPorcentaje = totalMesasCount > 0 
+    ? Math.round(((ocupadasCount + checkoutsCount) / totalMesasCount) * 100) 
     : 0;
 
-  const totalCocina = estadoEnVivo.cocina.enCola + estadoEnVivo.cocina.enPreparacion;
+  const totalCocina = (estadoEnVivo?.cocina?.enCola || 0) + (estadoEnVivo?.cocina?.enPreparacion || 0);
 
   // ── KEYFRAMES Y DISEÑO DE INTERACCIONES FLUIDAS ──
   const dashboardStyles = `
@@ -121,7 +135,7 @@ function MainDashboard() {
             
             <div className="flex items-center gap-3">
               <h3 className="text-2xl font-bold text-slate-100 font-mono tracking-tight">
-                S/ {estadoEnVivo.kpis.ventasHoy.toFixed(2)}
+                S/ {Number(estadoEnVivo?.kpis?.ventasHoy || 0).toFixed(2)}
               </h3>
               
               {/* Mini-sparkline SVG de tendencia */}
@@ -154,7 +168,7 @@ function MainDashboard() {
           <div className="space-y-1.5 flex-1">
             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Órdenes Procesadas</span>
             <h3 className="text-2xl font-bold text-slate-100">
-              {estadoEnVivo.kpis.ordenesHoy} Pedidos
+              {estadoEnVivo?.kpis?.ordenesHoy || 0} Pedidos
             </h3>
             <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
@@ -173,7 +187,7 @@ function MainDashboard() {
           <div className="space-y-1.5 flex-1">
             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Clientes VIP del Turno</span>
             <h3 className="text-2xl font-bold text-slate-100">
-              {estadoEnVivo.kpis.clientesVip} Frecuentes
+              {estadoEnVivo?.kpis?.clientesVip || 0} Frecuentes
             </h3>
             <p className="text-[10px] text-red-500 font-bold flex items-center gap-1 group-hover:-translate-y-0.5 transition-transform duration-300">
               <TrendingDown className="w-3.5 h-3.5 text-red-500" />
@@ -219,8 +233,8 @@ function MainDashboard() {
                 </span>
               </div>
               <div className="mt-2 text-[10px] text-slate-400 flex flex-col gap-0.5 font-medium">
-                <span>• {estadoEnVivo.cocina.enCola} comandas en cola</span>
-                <span>• {estadoEnVivo.cocina.enPreparacion} en preparación</span>
+                <span>• {estadoEnVivo?.cocina?.enCola || 0} comandas en cola</span>
+                <span>• {estadoEnVivo?.cocina?.enPreparacion || 0} en preparación</span>
               </div>
             </div>
 
@@ -249,8 +263,8 @@ function MainDashboard() {
                 </div>
               </div>
               <div className="text-[10px] text-slate-400 flex flex-col gap-0.5 font-medium">
-                <span>• {estadoEnVivo.mesas.ocupadas} ocupadas en salón</span>
-                <span>• {estadoEnVivo.mesas.disponibles} disponibles</span>
+                <span>• {ocupadasCount} ocupadas en salón</span>
+                <span>• {disponiblesCount} disponibles</span>
               </div>
             </div>
 
@@ -273,7 +287,7 @@ function MainDashboard() {
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
-            {estadoEnVivo.alertasStock.length === 0 ? (
+            {(estadoEnVivo?.alertasStock || []).length === 0 ? (
               /* ELEGANT EMPTY STATE WITH LATENT SCANNER PULSE */
               <div className="flex flex-col items-center justify-center py-10 text-center flex-1">
                 <ShoppingCart className="w-16 h-16 text-slate-500 opacity-[0.05] dark:opacity-[0.07] mb-4 animate-[pulse_4s_infinite]" />
@@ -285,7 +299,7 @@ function MainDashboard() {
             ) : (
               /* ALERT CARDS (FUTURE PROOFING) */
               <div className="space-y-3">
-                {estadoEnVivo.alertasStock.map((alerta) => (
+                {(estadoEnVivo?.alertasStock || []).map((alerta) => (
                   <div 
                     key={alerta.id}
                     className="border border-orange-500/10 bg-orange-950/5 p-3.5 rounded-xl flex justify-between items-center transition-all duration-300 ease-out transform hover:-translate-y-0.5 hover:border-orange-500/30"
